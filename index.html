@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risicomatrix — Breng je projectrisico's in kaart</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3 L29 26 L3 26 Z' fill='none' stroke='%2310b981' stroke-width='2' stroke-linejoin='round'/%3E%3Cline x1='16' y1='12' x2='16' y2='18' stroke='%2310b981' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='22' r='1.5' fill='%2310b981'/%3E%3C/svg%3E">
+    <style>
+        :root {
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --white: #ffffff;
+            
+            --red-50: #fef2f2;
+            --red-100: #fee2e2;
+            --red-500: #ef4444;
+            --red-600: #dc2626;
+            
+            --orange-50: #fff7ed;
+            --orange-100: #ffedd5;
+            --orange-500: #f97316;
+            --orange-600: #ea580c;
+            
+            --yellow-50: #fefce8;
+            --yellow-100: #fef9c3;
+            --yellow-500: #eab308;
+            --yellow-600: #ca8a04;
+            
+            --green-50: #f0fdf4;
+            --green-100: #dcfce7;
+            --green-500: #22c55e;
+            --green-600: #16a34a;
+            
+            --accent: #10b981;
+            --accent-light: #d1fae5;
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--slate-50);
+            color: var(--slate-700);
+            line-height: 1.5;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .back-link {
+            position: absolute;
+            left: 2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--slate-400);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--accent);
+        }
+
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+        }
+
+        .logo svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .header-text h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--slate-800);
+            letter-spacing: -0.02em;
+        }
+
+        .header-text p {
+            font-size: 0.8125rem;
+            color: var(--slate-500);
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* Project name */
+        .project-bar {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .project-name-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.625rem 1rem;
+            font-size: 1rem;
+            font-family: inherit;
+            font-weight: 600;
+            color: var(--slate-800);
+            background: var(--white);
+            border: 2px solid var(--slate-200);
+            border-radius: var(--radius-md);
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .project-name-input::placeholder {
+            color: var(--slate-400);
+            font-weight: 400;
+        }
+
+        .project-name-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        /* Main layout - 3 columns on desktop */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr 320px;
+            gap: 1.5rem;
+            align-items: stretch;
+        }
+
+        /* Card */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            border: 1.5px solid var(--slate-200);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--slate-400);
+            margin-bottom: 1rem;
+        }
+
+        /* Left panel - Form */
+        .risk-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--slate-500);
+            margin-bottom: 0.375rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 0.9375rem;
+            font-family: inherit;
+            color: var(--slate-800);
+            background: var(--white);
+            border: 1.5px solid var(--slate-200);
+            border-radius: var(--radius-sm);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .slider-group {
+            background: var(--slate-50);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.625rem;
+        }
+
+        .slider-label {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--slate-600);
+            cursor: help;
+            border-bottom: 1px dashed var(--slate-400);
+        }
+
+        .slider-label:hover {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .slider-value {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--accent);
+            min-width: 28px;
+            text-align: right;
+        }
+
+        .slider-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--slate-200);
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .slider-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid var(--white);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: transform 0.15s;
+        }
+
+        .slider-group input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .slider-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border: 3px solid var(--white);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .slider-hints {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.375rem;
+            font-size: 0.6875rem;
+            color: var(--slate-400);
+        }
+
+        .btn {
+            padding: 0.75rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: inherit;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: #0d9668;
+        }
+
+        .btn-secondary {
+            background: var(--slate-100);
+            color: var(--slate-600);
+        }
+
+        .btn-secondary:hover {
+            background: var(--slate-200);
+        }
+
+        .btn-outline {
+            background: var(--white);
+            color: var(--slate-500);
+            border: 1.5px solid var(--slate-200);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--red-300);
+            color: var(--red-500);
+            background: var(--red-50);
+        }
+
+        .btn-add {
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        /* Legend in form */
+        .legend-section {
+            margin-top: auto;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--slate-100);
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.625rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.6875rem;
+            font-weight: 600;
+        }
+
+        .legend-item.q-critical { background: var(--red-50); color: var(--red-600); }
+        .legend-item.q-high { background: var(--orange-50); color: var(--orange-600); }
+        .legend-item.q-medium { background: var(--yellow-50); color: var(--yellow-600); }
+        .legend-item.q-low { background: var(--green-50); color: var(--green-600); }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-item.q-critical .legend-dot { background: var(--red-500); }
+        .legend-item.q-high .legend-dot { background: var(--orange-500); }
+        .legend-item.q-medium .legend-dot { background: var(--yellow-500); }
+        .legend-item.q-low .legend-dot { background: var(--green-500); }
+
+        /* Center - Matrix */
+        .matrix-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .matrix-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 2rem 2.5rem 2.5rem 2.5rem;
+        }
+
+        .matrix-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%;
+            background: var(--white);
+            border: 2px solid var(--slate-300);
+            border-radius: var(--radius-sm);
+            overflow: visible;
+        }
+
+        .matrix-inner {
+            position: absolute;
+            inset: 0;
+            overflow: visible;
+        }
+
+        /* Quadrant backgrounds - 5x5 grid for risk matrix */
+        .risk-grid {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+        }
+
+        .risk-cell {
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        /* Risk colors based on position */
+        .risk-cell[data-level="critical"] { background: var(--red-100); }
+        .risk-cell[data-level="high"] { background: var(--orange-100); }
+        .risk-cell[data-level="medium"] { background: var(--yellow-100); }
+        .risk-cell[data-level="low"] { background: var(--green-100); }
+
+        /* Grid lines */
+        .grid-line {
+            position: absolute;
+            background: var(--slate-300);
+        }
+
+        .grid-line.horizontal {
+            width: 100%;
+            height: 2px;
+            top: 50%;
+            transform: translateY(-1px);
+        }
+
+        .grid-line.vertical {
+            width: 2px;
+            height: 100%;
+            left: 50%;
+            transform: translateX(-1px);
+        }
+
+        /* Quadrant labels inside matrix */
+        .quadrant-label {
+            position: absolute;
+            font-size: 0.625rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .quadrant-label.q-tl { top: 8px; left: 8px; color: var(--orange-600); }
+        .quadrant-label.q-tr { top: 8px; right: 8px; color: var(--red-600); text-align: right; }
+        .quadrant-label.q-bl { bottom: 8px; left: 8px; color: var(--green-600); }
+        .quadrant-label.q-br { bottom: 8px; right: 8px; color: var(--yellow-600); text-align: right; }
+
+        /* Axis labels outside matrix */
+        .axis-label {
+            position: absolute;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--slate-500);
+            cursor: help;
+            padding: 0.375rem 0.625rem;
+            border-radius: 6px;
+            transition: all 0.15s;
+            background: var(--white);
+            border: 1.5px solid var(--slate-200);
+            z-index: 20;
+        }
+
+        .axis-label:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .axis-label-x {
+            bottom: 0;
+            right: 0;
+        }
+
+        .axis-label-y {
+            top: 0;
+            left: 0;
+        }
+
+        /* Points container */
+        #pointsContainer {
+            position: absolute;
+            inset: 0;
+            overflow: visible;
+        }
+
+        /* Risk points */
+        .risk-point {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .point-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2.5px solid var(--white);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .point-dot:hover {
+            transform: scale(1.3);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        .point-dot.q-critical { background: var(--red-500); }
+        .point-dot.q-high { background: var(--orange-500); }
+        .point-dot.q-medium { background: var(--yellow-500); }
+        .point-dot.q-low { background: var(--green-500); }
+
+        /* Stacked indicator */
+        .point-stack-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 16px;
+            height: 16px;
+            background: var(--slate-700);
+            color: var(--white);
+            font-size: 0.5625rem;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--white);
+        }
+
+        /* Risk labels in matrix */
+        .risk-label {
+            position: absolute;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--slate-700);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 15;
+            background: rgba(255,255,255,0.95);
+            padding: 3px 6px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .label-leader {
+            position: absolute;
+            pointer-events: none;
+            z-index: 5;
+            border-left: 1px dashed var(--slate-400);
+        }
+
+        /* Right panel - List */
+        .list-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .risk-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 380px;
+        }
+
+        .risk-list::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .risk-list::-webkit-scrollbar-track {
+            background: var(--slate-100);
+            border-radius: 3px;
+        }
+
+        .risk-list::-webkit-scrollbar-thumb {
+            background: var(--slate-300);
+            border-radius: 3px;
+        }
+
+        .risk-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: var(--slate-50);
+            border-radius: var(--radius-sm);
+            border-left: 4px solid var(--slate-300);
+            transition: all 0.15s;
+        }
+
+        .risk-item.q-critical { border-left-color: var(--red-500); background: var(--red-50); }
+        .risk-item.q-high { border-left-color: var(--orange-500); background: var(--orange-50); }
+        .risk-item.q-medium { border-left-color: var(--yellow-500); background: var(--yellow-50); }
+        .risk-item.q-low { border-left-color: var(--green-500); background: var(--green-50); }
+
+        .risk-item:hover { opacity: 0.85; }
+
+        .risk-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .risk-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--slate-700);
+        }
+
+        .risk-meta {
+            font-size: 0.75rem;
+            color: var(--slate-500);
+            margin-top: 2px;
+        }
+
+        .risk-score {
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.6875rem;
+        }
+
+        .risk-score.q-critical { color: var(--red-600); background: var(--red-100); }
+        .risk-score.q-high { color: var(--orange-600); background: var(--orange-100); }
+        .risk-score.q-medium { color: var(--yellow-600); background: var(--yellow-100); }
+        .risk-score.q-low { color: var(--green-600); background: var(--green-100); }
+
+        .risk-delete {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            color: var(--slate-400);
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+
+        .risk-delete:hover {
+            background: var(--red-100);
+            color: var(--red-500);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: var(--slate-400);
+            font-size: 0.875rem;
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 0.75rem;
+            opacity: 0.4;
+        }
+
+        /* Actions */
+        .actions-section {
+            margin-top: auto;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--slate-100);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .download-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .download-row .btn {
+            flex: 1;
+            padding: 0.625rem 0.5rem;
+            font-size: 0.8125rem;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            z-index: 1000;
+            background: var(--slate-800);
+            color: var(--white);
+            font-size: 0.8125rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            max-width: 300px;
+            line-height: 1.5;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: opacity 0.15s, transform 0.15s;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            background: var(--white);
+            border-top: 1px solid var(--slate-200);
+            margin-top: 2rem;
+        }
+
+        .footer-quote {
+            color: var(--accent);
+            font-size: 0.875rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .main-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .main-grid > .card:first-child {
+                grid-column: 1 / -1;
+                max-width: 440px;
+                margin: 0 auto;
+            }
+
+            .main-grid > .card {
+                min-height: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-grid > .card:first-child {
+                max-width: none;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .back-link {
+                position: static;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .legend-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .matrix-wrapper {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="https://onderconstructie.github.io/projectmanagement/" class="back-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Projectmanagement
+        </a>
+        <div class="header-content">
+            <div class="logo">
+                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Waarschuwingsdriehoek -->
+                    <path d="M20 4 L36 32 L4 32 Z" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linejoin="round"/>
+                    <!-- Uitroepteken -->
+                    <line x1="20" y1="14" x2="20" y2="22" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="20" cy="27" r="2" fill="#10b981"/>
+                </svg>
+            </div>
+            <div class="header-text">
+                <h1>Risicomatrix</h1>
+                <p>Breng je projectrisico's in kaart</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="project-bar">
+            <input type="text" class="project-name-input" id="projectName" placeholder="Projectnaam invullen..." autocomplete="off">
+        </div>
+
+        <div class="main-grid">
+            <!-- Left: Form -->
+            <div class="card">
+                <h2 class="card-title">Risico toevoegen</h2>
+                <div class="risk-form">
+                    <div class="form-group">
+                        <label for="riskName">Risico omschrijving</label>
+                        <input type="text" id="riskName" placeholder="Bijv. Vertraging leverancier, Budget overschrijding..." autocomplete="off">
+                    </div>
+                    
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-label" id="probabilityLabel">Kans</span>
+                            <span class="slider-value" id="probabilityValue">5</span>
+                        </div>
+                        <input type="range" id="probabilitySlider" min="1" max="10" value="5">
+                        <div class="slider-hints">
+                            <span>zeer onwaarschijnlijk</span>
+                            <span>zeer waarschijnlijk</span>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-label" id="impactLabel">Impact</span>
+                            <span class="slider-value" id="impactValue">5</span>
+                        </div>
+                        <input type="range" id="impactSlider" min="1" max="10" value="5">
+                        <div class="slider-hints">
+                            <span>verwaarloosbaar</span>
+                            <span>catastrofaal</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-add" id="addRisk">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                        Toevoegen
+                    </button>
+                </div>
+
+                <div class="legend-section">
+                    <div class="legend-grid">
+                        <div class="legend-item q-critical"><span class="legend-dot"></span>Kritiek</div>
+                        <div class="legend-item q-high"><span class="legend-dot"></span>Hoog</div>
+                        <div class="legend-item q-medium"><span class="legend-dot"></span>Gemiddeld</div>
+                        <div class="legend-item q-low"><span class="legend-dot"></span>Laag</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center: Matrix -->
+            <div class="card matrix-card">
+                <div class="matrix-wrapper">
+                    <div class="matrix-container" id="matrixContainer">
+                        <div class="matrix-inner">
+                            <div class="risk-grid" id="riskGrid"></div>
+                            <div class="grid-line horizontal"></div>
+                            <div class="grid-line vertical"></div>
+                            <div class="quadrant-label q-tl">Noodplan</div>
+                            <div class="quadrant-label q-tr">Prioriteit</div>
+                            <div class="quadrant-label q-bl">Accepteren</div>
+                            <div class="quadrant-label q-br">Beperken</div>
+                            <div id="pointsContainer"></div>
+                        </div>
+                    </div>
+                    <div class="axis-label axis-label-x" id="axisLabelX">Kans →</div>
+                    <div class="axis-label axis-label-y" id="axisLabelY">↑ Impact</div>
+                </div>
+            </div>
+
+            <!-- Right: List -->
+            <div class="card list-card">
+                <h2 class="card-title">Overzicht <span id="riskCount"></span></h2>
+                <div class="risk-list" id="riskList">
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <div>Nog geen risico's</div>
+                        <div style="font-size: 0.75rem; margin-top: 0.25rem; opacity: 0.7;">Voeg links een risico toe</div>
+                    </div>
+                </div>
+
+                <div class="actions-section">
+                    <div class="download-row">
+                        <button class="btn btn-primary" id="downloadPng">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                            PNG
+                        </button>
+                        <button class="btn btn-secondary" id="downloadPdf">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                            PDF
+                        </button>
+                        <button class="btn btn-secondary" id="downloadCsv">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                            CSV
+                        </button>
+                    </div>
+                    <button class="btn btn-outline" id="resetBtn" style="width: 100%;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                        Alles wissen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <span class="footer-quote">Wie risico's kent, kan ze beheersen.</span>
+    </footer>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        let risks = [];
+
+        // Padding percentage to keep points away from edges
+        const EDGE_PADDING = 8;
+
+        // Risk level based on score (probability * impact)
+        function getRiskLevel(probability, impact) {
+            const score = probability * impact;
+            if (score >= 50) return { name: 'Kritiek', class: 'critical', action: 'Direct aanpakken' };
+            if (score >= 25) return { name: 'Hoog', class: 'high', action: 'Maatregelen nemen' };
+            if (score >= 10) return { name: 'Gemiddeld', class: 'medium', action: 'Monitoren' };
+            return { name: 'Laag', class: 'low', action: 'Accepteren' };
+        }
+
+        // Get risk level for a cell in the 5x5 grid
+        function getCellRiskLevel(col, row) {
+            // col: 0-4 (probability: 1-2, 3-4, 5-6, 7-8, 9-10)
+            // row: 0-4 (impact: 9-10, 7-8, 5-6, 3-4, 1-2) - inverted because top is high
+            const probMid = (col * 2) + 1.5; // middle of probability range
+            const impactMid = ((4 - row) * 2) + 1.5; // middle of impact range
+            const score = probMid * impactMid;
+            
+            if (score >= 50) return 'critical';
+            if (score >= 25) return 'high';
+            if (score >= 10) return 'medium';
+            return 'low';
+        }
+
+        // Initialize the risk grid colors
+        function initRiskGrid() {
+            const grid = document.getElementById('riskGrid');
+            grid.innerHTML = '';
+            
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'risk-cell';
+                    cell.dataset.level = getCellRiskLevel(col, row);
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function renderMatrix() {
+            const container = document.getElementById('pointsContainer');
+            container.innerHTML = '';
+
+            if (risks.length === 0) return;
+
+            const matrixRect = document.getElementById('matrixContainer').getBoundingClientRect();
+            const matrixWidth = matrixRect.width;
+            const matrixHeight = matrixRect.height;
+
+            // Group risks by position
+            const positionGroups = {};
+            risks.forEach((r, i) => {
+                const key = `${r.probability}-${r.impact}`;
+                if (!positionGroups[key]) {
+                    positionGroups[key] = [];
+                }
+                positionGroups[key].push({ ...r, index: i });
+            });
+
+            // Calculate positions with edge padding
+            const allPositions = [];
+
+            Object.values(positionGroups).forEach(group => {
+                const first = group[0];
+                // Map 1-10 to EDGE_PADDING to (100-EDGE_PADDING) percent
+                const baseXPercent = EDGE_PADDING + ((first.probability - 1) / 9) * (100 - 2 * EDGE_PADDING);
+                const baseYPercent = EDGE_PADDING + ((10 - first.impact) / 9) * (100 - 2 * EDGE_PADDING);
+
+                if (group.length === 1) {
+                    allPositions.push({
+                        ...first,
+                        xPercent: baseXPercent,
+                        yPercent: baseYPercent,
+                        level: getRiskLevel(first.probability, first.impact),
+                        stackCount: 1
+                    });
+                } else {
+                    // Multiple risks at same position - show as stacked
+                    allPositions.push({
+                        ...first,
+                        xPercent: baseXPercent,
+                        yPercent: baseYPercent,
+                        level: getRiskLevel(first.probability, first.impact),
+                        stackCount: group.length,
+                        stackedRisks: group
+                    });
+                }
+            });
+
+            // Create points and labels
+            allPositions.forEach((pos, i) => {
+                // Create point
+                const point = document.createElement('div');
+                point.className = 'risk-point';
+                point.style.left = pos.xPercent + '%';
+                point.style.top = pos.yPercent + '%';
+
+                const dot = document.createElement('div');
+                dot.className = `point-dot q-${pos.level.class}`;
+                
+                if (pos.stackCount > 1) {
+                    dot.title = pos.stackedRisks.map(r => r.name).join('\n');
+                    const badge = document.createElement('div');
+                    badge.className = 'point-stack-badge';
+                    badge.textContent = pos.stackCount;
+                    point.appendChild(badge);
+                } else {
+                    dot.title = `${pos.name}\nKans: ${pos.probability} · Impact: ${pos.impact}\nScore: ${pos.probability * pos.impact} (${pos.level.name})`;
+                }
+
+                point.appendChild(dot);
+                container.appendChild(point);
+
+                // Create label
+                const label = document.createElement('div');
+                label.className = 'risk-label';
+                
+                if (pos.stackCount > 1) {
+                    label.textContent = `${pos.stackCount} risico's`;
+                } else {
+                    label.textContent = pos.name.length > 20 ? pos.name.substring(0, 18) + '...' : pos.name;
+                }
+
+                // Position label
+                const xPx = (pos.xPercent / 100) * matrixWidth;
+                const yPx = (pos.yPercent / 100) * matrixHeight;
+                
+                // Determine label position based on quadrant
+                if (pos.xPercent > 50) {
+                    label.style.right = (100 - pos.xPercent) + '%';
+                    label.style.transform = 'translateX(calc(100% + 10px))';
+                } else {
+                    label.style.left = pos.xPercent + '%';
+                    label.style.transform = 'translateX(calc(-100% - 10px))';
+                }
+                
+                label.style.top = pos.yPercent + '%';
+                label.style.transform += ' translateY(-50%)';
+
+                container.appendChild(label);
+            });
+        }
+
+        function renderRiskList() {
+            const container = document.getElementById('riskList');
+            const countEl = document.getElementById('riskCount');
+
+            // Sort by risk score (highest first)
+            const sortedRisks = [...risks].map((r, i) => ({ ...r, originalIndex: i }))
+                .sort((a, b) => (b.probability * b.impact) - (a.probability * a.impact));
+
+            countEl.textContent = risks.length > 0 ? `(${risks.length})` : '';
+
+            if (risks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <div>Nog geen risico's</div>
+                        <div style="font-size: 0.75rem; margin-top: 0.25rem; opacity: 0.7;">Voeg links een risico toe</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = sortedRisks.map(r => {
+                const level = getRiskLevel(r.probability, r.impact);
+                const score = r.probability * r.impact;
+                return `
+                    <div class="risk-item q-${level.class}">
+                        <div class="risk-info">
+                            <div class="risk-name">${r.name}</div>
+                            <div class="risk-meta">Kans ${r.probability} · Impact ${r.impact} · <span class="risk-score q-${level.class}">${score} ${level.name}</span></div>
+                        </div>
+                        <button class="risk-delete" onclick="deleteRisk(${r.originalIndex})" title="Verwijderen">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addRisk() {
+            const nameInput = document.getElementById('riskName');
+            const addBtn = document.getElementById('addRisk');
+            const name = nameInput.value.trim();
+
+            if (!name) {
+                nameInput.focus();
+                nameInput.style.borderColor = '#f97316';
+                setTimeout(() => nameInput.style.borderColor = '', 1000);
+                return;
+            }
+
+            const probability = parseInt(document.getElementById('probabilitySlider').value);
+            const impact = parseInt(document.getElementById('impactSlider').value);
+
+            risks.push({ name, probability, impact });
+
+            // Visual feedback
+            addBtn.textContent = '✓ Toegevoegd';
+            addBtn.style.background = '#22c55e';
+            setTimeout(() => {
+                addBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Toevoegen`;
+                addBtn.style.background = '';
+            }, 600);
+
+            nameInput.value = '';
+            document.getElementById('probabilitySlider').value = 5;
+            document.getElementById('impactSlider').value = 5;
+            document.getElementById('probabilityValue').textContent = '5';
+            document.getElementById('impactValue').textContent = '5';
+            nameInput.focus();
+
+            renderMatrix();
+            renderRiskList();
+        }
+
+        function deleteRisk(index) {
+            risks.splice(index, 1);
+            renderMatrix();
+            renderRiskList();
+        }
+
+        function reset() {
+            risks = [];
+            document.getElementById('projectName').value = '';
+            document.getElementById('riskName').value = '';
+            document.getElementById('probabilitySlider').value = 5;
+            document.getElementById('impactSlider').value = 5;
+            document.getElementById('probabilityValue').textContent = '5';
+            document.getElementById('impactValue').textContent = '5';
+            renderMatrix();
+            renderRiskList();
+        }
+
+        async function downloadPng() {
+            const name = document.getElementById('projectName').value || 'Risicomatrix';
+            const matrix = document.querySelector('.matrix-wrapper');
+
+            const canvas = await html2canvas(matrix, {
+                backgroundColor: '#ffffff',
+                scale: 2
+            });
+
+            const link = document.createElement('a');
+            link.download = `${name.toLowerCase().replace(/\s+/g, '-')}-risicos.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        async function downloadPdf() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('l', 'mm', 'a4');
+            const name = document.getElementById('projectName').value || 'Risicomatrix';
+            const date = new Date().toLocaleDateString('nl-NL');
+            const matrix = document.querySelector('.matrix-wrapper');
+
+            const canvas = await html2canvas(matrix, {
+                backgroundColor: '#ffffff',
+                scale: 2
+            });
+
+            pdf.setFontSize(18);
+            pdf.setTextColor(30, 41, 59);
+            pdf.text(`Risico-analyse: ${name}`, 148.5, 18, { align: 'center' });
+
+            pdf.setFontSize(11);
+            pdf.setTextColor(100, 116, 139);
+            pdf.text(`${date}`, 148.5, 26, { align: 'center' });
+
+            const imgWidth = 160;
+            const imgHeight = 160;
+            const imgX = (297 - imgWidth) / 2;
+            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', imgX, 35, imgWidth, imgHeight);
+
+            pdf.save(`${name.toLowerCase().replace(/\s+/g, '-')}-risicos.pdf`);
+        }
+
+        function downloadCsv() {
+            const name = document.getElementById('projectName').value || 'Risicomatrix';
+
+            let csv = 'Risico,Kans,Impact,Score,Niveau,Actie\n';
+            risks.forEach(r => {
+                const level = getRiskLevel(r.probability, r.impact);
+                const score = r.probability * r.impact;
+                csv += `"${r.name}",${r.probability},${r.impact},${score},"${level.name}","${level.action}"\n`;
+            });
+
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${name.toLowerCase().replace(/\s+/g, '-')}-risicos.csv`;
+            link.click();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            initRiskGrid();
+            renderRiskList();
+
+            document.getElementById('probabilitySlider').addEventListener('input', e => {
+                document.getElementById('probabilityValue').textContent = e.target.value;
+            });
+
+            document.getElementById('impactSlider').addEventListener('input', e => {
+                document.getElementById('impactValue').textContent = e.target.value;
+            });
+
+            document.getElementById('addRisk').addEventListener('click', addRisk);
+
+            document.getElementById('riskName').addEventListener('keypress', e => {
+                if (e.key === 'Enter') addRisk();
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', reset);
+            document.getElementById('downloadPng').addEventListener('click', downloadPng);
+            document.getElementById('downloadPdf').addEventListener('click', downloadPdf);
+            document.getElementById('downloadCsv').addEventListener('click', downloadCsv);
+
+            // Tooltips
+            const tooltip = document.getElementById('tooltip');
+
+            function showTooltip(element, text) {
+                tooltip.textContent = text;
+                const rect = element.getBoundingClientRect();
+                tooltip.style.left = rect.left + 'px';
+                tooltip.style.top = (rect.bottom + 10) + 'px';
+                tooltip.classList.add('show');
+            }
+
+            function hideTooltip() {
+                tooltip.classList.remove('show');
+            }
+
+            document.getElementById('axisLabelX').addEventListener('mouseenter', e => {
+                showTooltip(e.target, 'Kans: Hoe waarschijnlijk is het dat dit risico zich voordoet? Rechts = grotere kans.');
+            });
+            document.getElementById('axisLabelX').addEventListener('mouseleave', hideTooltip);
+
+            document.getElementById('axisLabelY').addEventListener('mouseenter', e => {
+                showTooltip(e.target, 'Impact: Wat is de ernst van de gevolgen als dit risico zich voordoet? Boven = grotere impact.');
+            });
+            document.getElementById('axisLabelY').addEventListener('mouseleave', hideTooltip);
+
+            document.getElementById('probabilityLabel').addEventListener('mouseenter', e => {
+                showTooltip(e.target, 'Kans: Hoe waarschijnlijk is het dat dit risico zich voordoet? 1 = zeer onwaarschijnlijk, 10 = zeer waarschijnlijk.');
+            });
+            document.getElementById('probabilityLabel').addEventListener('mouseleave', hideTooltip);
+
+            document.getElementById('impactLabel').addEventListener('mouseenter', e => {
+                showTooltip(e.target, 'Impact: Wat is de ernst van de gevolgen? 1 = verwaarloosbaar effect, 10 = catastrofale gevolgen voor het project.');
+            });
+            document.getElementById('impactLabel').addEventListener('mouseleave', hideTooltip);
+
+            // Re-render on window resize
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    renderMatrix();
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

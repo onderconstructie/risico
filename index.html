@@ -853,36 +853,79 @@
         .ocw-cancel:hover { background: #e2e8f0; }
         .ocw-ok { background: #ef4444; color: #ffffff; }
         .ocw-ok:hover { background: #dc2626; }
+    
+        /* ===== Huisstijl oktober 2026: kop (patroon B), contrast, focus, tikdoelen ===== */
+        .oc-head { display:block; text-align:center; background:#fff; border-bottom:1px solid #e2e8f0; padding:1.5rem 1.25rem 1.75rem; position:relative; }
+        .oc-head .back-link { position:absolute; top:0.875rem; left:1rem; min-height:44px; display:inline-flex; align-items:center; gap:0.5rem; padding:0 0.5rem; margin:0; font-size:0.875rem; color:#64748b; text-decoration:none; border-radius:8px; transition:color 0.2s; }
+        .oc-head .back-link:hover { color:#047857; }
+        .oc-head .back-link svg { width:16px; height:16px; flex:none; }
+        .oc-head .logo { display:block; width:56px; height:56px; margin:0 auto; }
+        .oc-head .logo svg { display:block; width:56px; height:56px; }
+        .oc-head .title { font-size:1.625rem; font-weight:700; color:#1e293b; letter-spacing:-0.03em; line-height:1.2; margin:0.5rem 0 0.25rem; }
+        .oc-head .subtitle { font-size:0.9375rem; color:#64748b; max-width:520px; margin:0 auto; }
+        @media (max-width:640px) {
+            .oc-head { padding-top:0.5rem; }
+            .oc-head .back-link { position:static; margin:0 auto 0.375rem; }
+        }
+        footer.oc-footer, footer.oc-footer .oc-quote, .footer .quote { color:#047857; }
+        :focus-visible { outline:2px solid #047857 !important; outline-offset:2px; }
+        input[type=range]:focus-visible { outline:2px solid #047857 !important; outline-offset:4px; }
+        .oc-import { color:#047857; min-height:44px; }
+        .oc-import:focus-visible { outline-color:#047857; }
+        .sr-only { position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+        .card-title, .slider-hints, .empty-state, .back-link { color:#64748b; }
+        .slider-value { color:#047857; }
+        .slider-label:hover { color:#047857; border-bottom-color:#047857; }
+        .btn { min-height:44px; }
+        .btn-primary { background:#047857; color:#fff; border-radius:10px; font-size:15px; }
+        .btn-primary:hover { background:#065f46; }
+        .btn-add { padding:0 1.25rem; }
+        .download-row .btn { min-height:44px; }
+        .risk-delete { width:44px; height:44px; margin:-0.5rem -0.75rem -0.5rem 0; }
+        .ocw-btn { min-height:44px; }
+        .ocw-ok { background:#b91c1c; }
+        .ocw-ok:hover { background:#991b1b; }
+        .quadrant-label { opacity:1; }
+        .quadrant-label.q-tl { color:#9a3412; }
+        .quadrant-label.q-tr { color:#991b1b; }
+        .quadrant-label.q-bl { color:#166534; }
+        .quadrant-label.q-br { color:#854d0e; }
+        .legend-item.q-critical, .risk-score.q-critical { color:#991b1b; }
+        .legend-item.q-high, .risk-score.q-high { color:#9a3412; }
+        .legend-item.q-medium, .risk-score.q-medium { color:#854d0e; }
+        .legend-item.q-low, .risk-score.q-low { color:#166534; }
+        .risk-name { overflow-wrap:anywhere; }
+        .axis-label:focus-visible { color:#047857; border-color:#047857; }
+        .axis-label:hover { color:#047857; border-color:#047857; }
+        .axis-label::before { content:''; position:absolute; inset:-7px -4px; }
+        .slider-hints { gap:0.75rem; }
+        .slider-hints span:last-child { text-align:right; }
+        .risk-meta { color:#475569; }
     </style>
 </head>
 <body>
-    <header class="header">
-        <a href="https://onderconstructie.github.io/projectmanagement/" class="back-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
+    <header class="header oc-head">
+        <a href="https://onderconstructie.github.io/projectmanagement/" class="back-link" aria-label="Terug naar Projectmanagement">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             Projectmanagement
         </a>
-        <div class="header-content">
-            <div class="logo">
-                <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div class="logo" aria-hidden="true">
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <!-- Waarschuwingsdriehoek -->
                     <path d="M20 4 L36 32 L4 32 Z" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linejoin="round"/>
                     <!-- Uitroepteken -->
                     <line x1="20" y1="14" x2="20" y2="22" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
                     <circle cx="20" cy="27" r="2" fill="#10b981"/>
                 </svg>
-            </div>
-            <div class="header-text">
-                <h1>Risicomatrix</h1>
-                <p>Breng je projectrisico's in kaart</p>
-            </div>
         </div>
+        <h1 class="title">Risicomatrix</h1>
+        <p class="subtitle">Breng je projectrisico's in kaart.</p>
     </header>
 
     <div class="container">
         <div class="project-bar">
-            <input type="text" class="project-name-input" id="projectName" placeholder="Projectnaam invullen..." autocomplete="off">
+            <input type="text" class="project-name-input" id="projectName" placeholder="Projectnaam invullen..." autocomplete="off" aria-label="Projectnaam">
         </div>
 
         <div class="main-grid">
@@ -897,7 +940,7 @@
                     
                     <div class="slider-group">
                         <div class="slider-header">
-                            <span class="slider-label" id="probabilityLabel">Kans</span>
+                            <label class="slider-label" id="probabilityLabel" for="probabilitySlider">Kans</label>
                             <span class="slider-value" id="probabilityValue">5</span>
                         </div>
                         <input type="range" id="probabilitySlider" min="1" max="10" value="5">
@@ -909,7 +952,7 @@
                     
                     <div class="slider-group">
                         <div class="slider-header">
-                            <span class="slider-label" id="impactLabel">Impact</span>
+                            <label class="slider-label" id="impactLabel" for="impactSlider">Impact</label>
                             <span class="slider-value" id="impactValue">5</span>
                         </div>
                         <input type="range" id="impactSlider" min="1" max="10" value="5">
@@ -950,8 +993,8 @@
                             <div id="pointsContainer"></div>
                         </div>
                     </div>
-                    <div class="axis-label axis-label-x" id="axisLabelX">Kans →</div>
-                    <div class="axis-label axis-label-y" id="axisLabelY">↑ Impact</div>
+                    <div class="axis-label axis-label-x" id="axisLabelX" tabindex="0" role="button" aria-label="Kans: uitleg">Kans →</div>
+                    <div class="axis-label axis-label-y" id="axisLabelY" tabindex="0" role="button" aria-label="Impact: uitleg">↑ Impact</div>
                 </div>
             </div>
 
@@ -964,13 +1007,13 @@
                             <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
                         <div>Nog geen risico's</div>
-                        <div style="font-size: 0.75rem; margin-top: 0.25rem; opacity: 0.7;">Voeg links een risico toe</div>
+                        <div style="font-size: 0.75rem; margin-top: 0.25rem;">Voeg links een risico toe</div>
                     </div>
                 </div>
 
                 <div class="actions-section">
                     <div class="download-row">
-                        <button class="btn btn-primary" id="downloadPng">
+                        <button class="btn btn-secondary" id="downloadPng" type="button">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                                 <circle cx="8.5" cy="8.5" r="1.5"/>
@@ -1000,10 +1043,10 @@
         <p class="quote oc-quote">Wie risico's kent, kan ze beheersen.</p>
     </footer>
 
-    <div class="tooltip" id="tooltip"></div>
+    <div class="tooltip" id="tooltip" role="tooltip"></div>
 
     <script>
-/* ---------- Overnemen tussen tools (gedeeld door de Onder Constructie-tools, v1) ----------
+/* ---------- Overnemen tussen tools (gedeeld door de Onder Constructie-tools, v2) ----------
    Alle tools draaien op hetzelfde domein en delen dus localStorage. Elke tool legt wat hij te bieden
    heeft klaar onder 'oc.share.<tool-id>', in een vaste vorm, zodat andere tools het kunnen overnemen
    zonder elkaars binnenkant te kennen.
@@ -1041,20 +1084,23 @@ const ocShare = (() => {
   }
   function clear(id) { try { localStorage.removeItem(PREFIX + id); } catch {} }
 
+  // Elke bron apart: één kapotte sleutel mag de andere niet verbergen.
   function sources(types, self) {
     const out = [];
-    try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (!k || !k.startsWith(PREFIX) || k === PREFIX + self) continue;
+    let keys = [];
+    try { for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i)); } catch { return out; }
+    keys.forEach(k => {
+      if (!k || !k.startsWith(PREFIX) || k === PREFIX + self) return;
+      try {
         const d = JSON.parse(localStorage.getItem(k));
-        if (!d || !Array.isArray(d.lists)) continue;
+        if (!d || !Array.isArray(d.lists)) return;
         d.lists.forEach(l => {
-          const items = l.items.filter(it => types.includes(it.type));
-          if (items.length) out.push({ tool: d.tool || d.id, id: d.id, updated: d.updated, list: l.name, items });
+          if (!l || !Array.isArray(l.items)) return;
+          const items = l.items.filter(it => it && types.includes(it.type) && typeof it.text === 'string');
+          if (items.length) out.push({ tool: String(d.tool || d.id || k.slice(PREFIX.length)), id: d.id, updated: +d.updated || 0, list: String(l.name || ''), items });
         });
-      }
-    } catch {}
+      } catch {}
+    });
     return out.sort((a, b) => (b.updated || 0) - (a.updated || 0));
   }
 
@@ -1136,7 +1182,7 @@ const ocShare = (() => {
 
   // Hoeveel er klaarligt voor deze soorten (om een knop te tonen of een teller te zetten).
   const count = (types, self) => sources(types, self).reduce((n, s) => n + s.items.length, 0);
-  return { publish, clear, pick, count, sources };
+  return { publish, clear, pick, count, sources, esc };
 })();
 
 /* ---------- Download als afbeelding of PDF (gedeeld door de Onder Constructie-tools, v2) ----------
@@ -1300,7 +1346,7 @@ const ocExport = (() => {
             return `<div style="margin-bottom:18px">
                 <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:${textColor}">
                     <span style="width:9px;height:9px;border-radius:50%;background:${color}"></span>${ocEsc(title)}
-                    <span style="font-weight:500;letter-spacing:0;text-transform:none;color:#94a3b8">· ${ocEsc(sub)}</span></div>
+                    <span style="font-weight:500;letter-spacing:0;text-transform:none;color:#64748b">· ${ocEsc(sub)}</span></div>
                 ${rows.map(r => `<div data-oc-keep style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:14px;color:#1e293b">
                     <span>${ocEsc(r.name)}</span><span style="white-space:nowrap;font-size:12px;color:#64748b">${ocEsc(r.meta)}</span></div>`).join('')}
             </div>`;
@@ -1508,6 +1554,14 @@ const ocExport = (() => {
                 label.style.transform += ' translateY(-50%)';
 
                 container.appendChild(label);
+                // Past het label niet naast het punt binnen de kaart (smal scherm)? Dan aan de andere kant.
+                const box = (container.closest('.card') || document.body).getBoundingClientRect();
+                const lr = label.getBoundingClientRect();
+                if (box.width && (lr.right > box.right - 4 || lr.left < box.left + 4)) {
+                    label.style.left = ''; label.style.right = '';
+                    if (pos.xPercent > 50) { label.style.right = (100 - pos.xPercent) + '%'; label.style.transform = 'translateX(-10px) translateY(-50%)'; }
+                    else { label.style.left = pos.xPercent + '%'; label.style.transform = 'translateX(10px) translateY(-50%)'; }
+                }
             });
         }
 
@@ -1521,6 +1575,8 @@ const ocExport = (() => {
                 .sort((a, b) => (b.probability * b.impact) - (a.probability * a.impact));
 
             countEl.textContent = risks.length > 0 ? `(${risks.length})` : '';
+            const pngBtn = document.getElementById('downloadPng');
+            pngBtn.classList.toggle('btn-primary', risks.length > 0); pngBtn.classList.toggle('btn-secondary', !risks.length);
 
             if (risks.length === 0) {
                 container.innerHTML = `
@@ -1529,7 +1585,7 @@ const ocExport = (() => {
                             <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
                         <div>Nog geen risico's</div>
-                        <div style="font-size: 0.75rem; margin-top: 0.25rem; opacity: 0.7;">Voeg links een risico toe</div>
+                        <div style="font-size: 0.75rem; margin-top: 0.25rem;">Voeg links een risico toe</div>
                     </div>
                 `;
                 return;
@@ -1541,11 +1597,11 @@ const ocExport = (() => {
                 return `
                     <div class="risk-item q-${level.class}">
                         <div class="risk-info">
-                            <div class="risk-name">${r.name}</div>
+                            <div class="risk-name">${ocEsc(r.name)}</div>
                             <div class="risk-meta">Kans ${r.probability} · Impact ${r.impact} · <span class="risk-score q-${level.class}">${score} ${level.name}</span></div>
                         </div>
-                        <button class="risk-delete" onclick="deleteRisk(${r.originalIndex})" title="Verwijderen">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                        <button class="risk-delete" type="button" data-del="${r.originalIndex}" title="Verwijderen" aria-label="Verwijder ${ocEsc(r.name)}">
+                            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                         </button>
                     </div>
                 `;
@@ -1612,6 +1668,7 @@ const ocExport = (() => {
 
         function downloadPdf(e) { return ocDownload('pdf', e.currentTarget); }
 
+        const csvCell = v => { let t = String(v == null ? '' : v); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return '"' + t.replace(/"/g, '""') + '"'; };
         function downloadCsv() {
             const name = document.getElementById('projectName').value || 'Risicomatrix';
 
@@ -1619,7 +1676,7 @@ const ocExport = (() => {
             risks.forEach(r => {
                 const level = getRiskLevel(r.probability, r.impact);
                 const score = r.probability * r.impact;
-                csv += `"${r.name}",${r.probability},${r.impact},${score},"${level.name}","${level.action}"\n`;
+                csv += `${csvCell(r.name)},${r.probability},${r.impact},${score},"${level.name}","${level.action}"\n`;
             });
 
             const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -1646,6 +1703,7 @@ const ocExport = (() => {
             });
 
             document.getElementById('addRisk').addEventListener('click', addRisk);
+            document.getElementById('riskList').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (b) deleteRisk(+b.dataset.del); });
 
             document.getElementById('riskName').addEventListener('keypress', e => {
                 if (e.key === 'Enter') addRisk();
@@ -1662,7 +1720,9 @@ const ocExport = (() => {
             function showTooltip(element, text) {
                 tooltip.textContent = text;
                 const rect = element.getBoundingClientRect();
-                tooltip.style.left = rect.left + 'px';
+                tooltip.style.maxWidth = Math.min(300, innerWidth - 16) + 'px';
+                tooltip.style.left = '0px';
+                tooltip.style.left = Math.max(8, Math.min(rect.left, innerWidth - tooltip.offsetWidth - 8)) + 'px';
                 tooltip.style.top = (rect.bottom + 10) + 'px';
                 tooltip.classList.add('show');
             }
@@ -1690,6 +1750,19 @@ const ocExport = (() => {
                 showTooltip(e.target, 'Impact: Wat is de ernst van de gevolgen? 1 = verwaarloosbaar effect, 10 = catastrofale gevolgen voor het project.');
             });
             document.getElementById('impactLabel').addEventListener('mouseleave', hideTooltip);
+
+            // Uitleg ook bij toetsenbordfocus en tikken (niet enkel bij muis)
+            [['axisLabelX', 'Kans: Hoe waarschijnlijk is het dat dit risico zich voordoet? Rechts = grotere kans.'],
+             ['axisLabelY', 'Impact: Wat is de ernst van de gevolgen als dit risico zich voordoet? Boven = grotere impact.'],
+             ['probabilityLabel', 'Kans: Hoe waarschijnlijk is het dat dit risico zich voordoet? 1 = zeer onwaarschijnlijk, 10 = zeer waarschijnlijk.'],
+             ['impactLabel', 'Impact: Wat is de ernst van de gevolgen? 1 = verwaarloosbaar effect, 10 = catastrofale gevolgen voor het project.']].forEach(([id, text]) => {
+                const el = document.getElementById(id);
+                el.addEventListener('focus', () => showTooltip(el, text));
+                el.addEventListener('blur', hideTooltip);
+                el.addEventListener('click', () => showTooltip(el, text));
+                el.addEventListener('keydown', e => { if (e.key === 'Escape') hideTooltip(); });
+            });
+            ['probabilitySlider', 'impactSlider'].forEach(id => document.getElementById(id).addEventListener('focus', hideTooltip));
 
             // Re-render on window resize
             let resizeTimeout;

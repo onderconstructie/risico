@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#ffffff">
     <title>Risicomatrix – Onder Constructie</title>
-    <meta name="description" content="Breng projectrisico&#x27;s in kaart met de kans-impact matrix. Prioriteer en beheers risico&#x27;s visueel.">
+    <meta name="description" content="Breng de risico&#x27;s van je project in kaart volgens kans en impact, en zie meteen welke eerst aandacht vragen.">
     <meta name="oc:groep" content="projecten">
     <meta name="oc:labels" content="">
     <meta name="oc:pdca" content="plan, check">
@@ -13,7 +13,7 @@
     <meta name="oc:volgorde" content="40">
     <meta name="oc:opslag" content="risico.v1, oc.share.risico">
 <link rel="stylesheet" href="/fonts/fonts.css">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox=&quot;0 0 40 40&quot; fill=&quot;none&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E %3Cpath d=&quot;M20 4 L36 32 L4 32 Z&quot; fill=&quot;%23ecfdf5&quot; stroke=&quot;%2310b981&quot; stroke-width=&quot;2&quot; stroke-linejoin=&quot;round&quot;/%3E %3Cline x1=&quot;20&quot; y1=&quot;14&quot; x2=&quot;20&quot; y2=&quot;22&quot; stroke=&quot;%2310b981&quot; stroke-width=&quot;3&quot; stroke-linecap=&quot;round&quot;/%3E %3Ccircle cx=&quot;20&quot; cy=&quot;27&quot; r=&quot;2&quot; fill=&quot;%2310b981&quot;/%3E %3C/svg%3E">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox=&quot;0 0 40 40&quot; fill=&quot;none&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Ccircle cx=&quot;20&quot; cy=&quot;20&quot; r=&quot;18&quot; fill=&quot;%23f8fafc&quot; stroke=&quot;%23e2e8f0&quot; stroke-width=&quot;1.5&quot;/%3E%3Crect x=&quot;10&quot; y=&quot;10&quot; width=&quot;20&quot; height=&quot;20&quot; rx=&quot;2&quot; stroke=&quot;%23334155&quot; stroke-width=&quot;1.5&quot; fill=&quot;%23fff&quot;/%3E%3Cpath d=&quot;M16.7 10v20M23.3 10v20M10 16.7h20M10 23.3h20&quot; stroke=&quot;%23cbd5e1&quot; stroke-width=&quot;1&quot;/%3E%3Crect x=&quot;23.3&quot; y=&quot;10&quot; width=&quot;6.7&quot; height=&quot;6.7&quot; fill=&quot;%2310b981&quot;/%3E%3Ccircle cx=&quot;13.3&quot; cy=&quot;26.7&quot; r=&quot;1.4&quot; fill=&quot;%2394a3b8&quot;/%3E%3Ccircle cx=&quot;20&quot; cy=&quot;20&quot; r=&quot;1.4&quot; fill=&quot;%2394a3b8&quot;/%3E%3C/svg%3E">
     <style>
         :root {
             --slate-50: #f8fafc;
@@ -32,20 +32,20 @@
             --red-500: #ef4444;
             --red-600: #dc2626;
             
-            --orange-50: #fff7ed;
-            --orange-100: #ffedd5;
-            --orange-500: #f97316;
-            --orange-600: #ea580c;
+            --orange-50: #fffbeb;
+            --orange-100: #fef3c7;
+            --orange-500: #f59e0b;
+            --orange-600: #b45309;
             
-            --yellow-50: #fefce8;
-            --yellow-100: #fef9c3;
-            --yellow-500: #eab308;
-            --yellow-600: #ca8a04;
+            --yellow-50: #f8fafc;
+            --yellow-100: #f1f5f9;
+            --yellow-500: #94a3b8;
+            --yellow-600: #475569;
             
-            --green-50: #f0fdf4;
-            --green-100: #dcfce7;
-            --green-500: #22c55e;
-            --green-600: #16a34a;
+            --green-50: #ecfdf5;
+            --green-100: #d1fae5;
+            --green-500: #10b981;
+            --green-600: #047857;
             
             --accent: #10b981;
             --accent-light: #d1fae5;
@@ -453,8 +453,8 @@
             position: absolute;
             inset: 0;
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(5, 1fr);
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
         }
 
         .risk-cell {
@@ -620,7 +620,6 @@
             gap: 0.5rem;
             flex: 1;
             overflow-y: auto;
-            max-height: 380px;
         }
 
         .risk-list::-webkit-scrollbar {
@@ -885,14 +884,14 @@
         .ocw-ok { background:#b91c1c; }
         .ocw-ok:hover { background:#991b1b; }
         .quadrant-label { opacity:1; }
-        .quadrant-label.q-tl { color:#9a3412; }
+        .quadrant-label.q-tl { color:#92400e; }
         .quadrant-label.q-tr { color:#991b1b; }
-        .quadrant-label.q-bl { color:#166534; }
-        .quadrant-label.q-br { color:#854d0e; }
+        .quadrant-label.q-bl { color:#065f46; }
+        .quadrant-label.q-br { color:#334155; }
         .legend-item.q-critical, .risk-score.q-critical { color:#991b1b; }
-        .legend-item.q-high, .risk-score.q-high { color:#9a3412; }
-        .legend-item.q-medium, .risk-score.q-medium { color:#854d0e; }
-        .legend-item.q-low, .risk-score.q-low { color:#166534; }
+        .legend-item.q-high, .risk-score.q-high { color:#92400e; }
+        .legend-item.q-medium, .risk-score.q-medium { color:#334155; }
+        .legend-item.q-low, .risk-score.q-low { color:#065f46; }
         .risk-name { overflow-wrap:anywhere; }
         .axis-label:focus-visible { color:#047857; border-color:#047857; }
         .axis-label:hover { color:#047857; border-color:#047857; }
@@ -913,6 +912,51 @@
         .restart-row { display: flex; justify-content: center; margin-top: 1.25rem; }
         .restart-btn { min-height: 44px; padding: 0.5rem 1rem; font: inherit; font-size: 0.875rem; font-weight: 500; color: #64748b; background: none; border: 0; border-radius: 10px; cursor: pointer; text-decoration: underline; text-decoration-color: #cbd5e1; text-underline-offset: 3px; }
         .restart-btn:hover { color: #b91c1c; background: #fef2f2; text-decoration-color: currentColor; }
+        /* ===== Panel oktober 2026: matrix 10x10, genummerde stippen, aslabels als tekst ===== */
+        .matrix-wrapper { padding: 0.25rem 0.25rem 2rem 2rem; }
+        @media (max-width: 768px) { .matrix-wrapper { padding: 0.25rem 0.25rem 2rem 2rem; } }
+        .risk-cell { border: 1px solid rgba(255,255,255,0.6); }
+        .risk-cell[data-level="medium"] { background: #f1f5f9; }
+        .axis-label, .axis-label:hover, .axis-label:focus-visible { background: none; border: 0; padding: 0; color: #475569; cursor: default; font-size: 0.8125rem; font-weight: 600; border-radius: 0; }
+        .axis-label::before { content: none; }
+        .axis-label-x { left: 2rem; right: 0.25rem; bottom: 0.25rem; top: auto; text-align: center; }
+        .axis-label-y { top: 0.25rem; bottom: 2rem; left: 0; width: 1.5rem; display: flex; align-items: center; justify-content: center; }
+        .axis-label-y span { display: block; transform: rotate(-90deg); white-space: nowrap; }
+        .quadrant-label { font-size: 0.625rem; z-index: 1; }
+        .quadrant-label.q-tl, .quadrant-label.q-tr { top: 6px; }
+        .quadrant-label.q-bl, .quadrant-label.q-br { bottom: 6px; }
+        .point-dot { width: auto; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; border: 2px solid #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 0.6875rem; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; line-height: 1; white-space: nowrap; box-shadow: 0 1px 4px rgba(15,23,42,0.3); cursor: default; }
+        .point-dot:hover { transform: scale(1.15); }
+        .point-dot.q-high { color: #451a03; }
+        .point-dot.q-medium { background: #64748b; }
+        .point-dot.q-critical { background: #dc2626; }
+        .risk-num { flex-shrink: 0; min-width: 24px; height: 24px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
+        .risk-num.q-critical { background: #dc2626; }
+        .risk-num.q-high { background: #f59e0b; color: #451a03; }
+        .risk-num.q-medium { background: #64748b; }
+        .risk-num.q-low { background: #10b981; }
+        .risk-item { gap: 0.625rem; padding-left: 0.75rem; }
+        .slider-value, .risk-meta { font-variant-numeric: tabular-nums; }
+        .matrix-card { justify-content: flex-start; }
+        .matrix-head { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+        .matrix-head .card-title { margin: 0; flex: 1; }
+        .matrix-dl { display: flex; gap: 0.5rem; }
+        .matrix-dl .btn { font-size: 0.8125rem; padding: 0.5rem 0.75rem; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .empty-state .vb-start { margin-top: 1rem; font-size: 0.875rem; }
+        .vb-bar { display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem 0.75rem; margin:0 0 1rem; padding:0.5rem 0.5rem 0.5rem 0.75rem; background:#fffbeb; border:1px solid #fde68a; border-radius:12px; font-size:0.875rem; line-height:1.4; color:#78350f; }
+        .vb-bar svg { width:18px; height:18px; flex-shrink:0; color:#b45309; }
+        .vb-text { flex:1 1 14rem; min-width:0; display:flex; gap:0.5rem; align-items:flex-start; }
+        .vb-btns { display:flex; flex-wrap:wrap; gap:0.375rem; }
+        .vb-btn { min-height:44px; padding:0.375rem 0.625rem; border-radius:10px; font:inherit; font-size:0.875rem; font-weight:600; background:#fff; border:1px solid var(--slate-200); cursor:pointer; }
+        .vb-wis { color:#b91c1c; border-color:#fecaca; }
+        .vb-eigen { color:#047857; border-color:#a7f3d0; }
+        .slider-group input[type="range"] { height: 44px; border-radius: 0; background: linear-gradient(var(--slate-200), var(--slate-200)) center / 100% 8px no-repeat; touch-action: manipulation; }
+        .slider-group input[type="range"]::-webkit-slider-thumb { width: 24px; height: 24px; }
+        .slider-group input[type="range"]::-moz-range-thumb { width: 24px; height: 24px; }
+        .slider-hints { margin-top: -0.25rem; }
+        [hidden] { display: none !important; }
     </style>
 </head>
 <body>
@@ -922,13 +966,7 @@
             Projectmanagement
         </a>
         <div class="logo" aria-hidden="true">
-            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Waarschuwingsdriehoek -->
-                    <path d="M20 4 L36 32 L4 32 Z" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linejoin="round"/>
-                    <!-- Uitroepteken -->
-                    <line x1="20" y1="14" x2="20" y2="22" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
-                    <circle cx="20" cy="27" r="2" fill="#10b981"/>
-                </svg>
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="18" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/><rect x="10" y="10" width="20" height="20" rx="2" stroke="#334155" stroke-width="1.5" fill="#fff"/><path d="M16.7 10v20M23.3 10v20M10 16.7h20M10 23.3h20" stroke="#cbd5e1" stroke-width="1"/><rect x="23.3" y="10" width="6.7" height="6.7" fill="#10b981"/><circle cx="13.3" cy="26.7" r="1.4" fill="#94a3b8"/><circle cx="20" cy="20" r="1.4" fill="#94a3b8"/></svg>
         </div>
         <h1 class="title">Risicomatrix</h1>
         <p class="subtitle">Wat kan misgaan, en hoe erg zou dat zijn?</p>
@@ -937,6 +975,11 @@
     <div class="container">
         <div class="project-bar">
             <input type="text" class="project-name-input" id="projectName" placeholder="Projectnaam invullen..." autocomplete="off" aria-label="Projectnaam">
+        </div>
+
+        <div class="vb-bar" id="vbBar" hidden>
+            <div class="vb-text"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg><span>Dit is een voorbeeld om de tool te verkennen. Het telt niet mee in andere tools.</span></div>
+            <div class="vb-btns"><button type="button" class="vb-btn vb-wis" data-vb="wis">Wis voorbeeld</button><button type="button" class="vb-btn vb-eigen" data-vb="eigen">Maak er mijn eigen van</button></div>
         </div>
 
         <div class="main-grid">
@@ -991,6 +1034,12 @@
 
             <!-- Center: Matrix -->
             <div class="card matrix-card">
+                <div class="matrix-head"><h2 class="card-title">Matrix</h2>
+                    <div class="matrix-dl" id="matrixDl" hidden>
+                        <button class="btn btn-secondary" type="button" data-dl="png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Afbeelding</button>
+                        <button class="btn btn-secondary" type="button" data-dl="pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>PDF</button>
+                    </div>
+                </div>
                 <div class="matrix-wrapper">
                     <div class="matrix-container" id="matrixContainer">
                         <div class="matrix-inner">
@@ -999,13 +1048,13 @@
                             <div class="grid-line vertical"></div>
                             <div class="quadrant-label q-tl">Noodplan</div>
                             <div class="quadrant-label q-tr">Prioriteit</div>
-                            <div class="quadrant-label q-bl">Accepteren</div>
+                            <div class="quadrant-label q-bl">Aanvaarden</div>
                             <div class="quadrant-label q-br">Beperken</div>
                             <div id="pointsContainer"></div>
                         </div>
                     </div>
-                    <div class="axis-label axis-label-x" id="axisLabelX" tabindex="0" role="button" aria-label="Kans: uitleg">Kans →</div>
-                    <div class="axis-label axis-label-y" id="axisLabelY" tabindex="0" role="button" aria-label="Impact: uitleg">↑ Impact</div>
+                    <div class="axis-label axis-label-x" id="axisLabelX">Kans →</div>
+                    <div class="axis-label axis-label-y" id="axisLabelY"><span>Impact →</span></div>
                 </div>
             </div>
 
@@ -1018,37 +1067,34 @@
                             <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
                         <div>Nog geen risico's</div>
-                        <div style="font-size: 0.75rem; margin-top: 0.25rem;">Voeg links een risico toe</div>
+                        <div style="font-size: 0.75rem; margin-top: 0.25rem;">Voeg links een risico toe, of kijk eerst hoe het eruitziet.</div>
+                        <button type="button" class="btn btn-secondary vb-start" data-vb="start">Voorbeeld bekijken</button>
                     </div>
                 </div>
 
                 <div class="actions-section">
                     <div class="download-row">
-                        <button class="btn btn-secondary" id="downloadPng" type="button">
+                        <button class="btn btn-secondary" id="downloadPng" type="button" disabled>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                                 <circle cx="8.5" cy="8.5" r="1.5"/>
                                 <polyline points="21 15 16 10 5 21"/>
                             </svg>
-                            PNG
+                            Afbeelding
                         </button>
-                        <button class="btn btn-secondary" id="downloadPdf">
+                        <button class="btn btn-secondary" id="downloadPdf" type="button" disabled>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
                             PDF
                         </button>
-                        <button class="btn btn-secondary" id="downloadCsv">
+                        <button class="btn btn-secondary" id="downloadCsv" type="button" disabled>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
                             CSV
                         </button>
                     </div>
-                    <button class="btn btn-outline" id="resetBtn" style="width: 100%;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                        Alles wissen
-                    </button>
                 </div>
             </div>
         </div>
-        <div class="restart-row"><button type="button" class="restart-btn" id="ocRestart" title="Alles wissen en opnieuw beginnen">Opnieuw beginnen</button></div>
+        <div class="restart-row" id="restartRow" hidden><button type="button" class="restart-btn" id="ocRestart" title="Alles wissen en opnieuw beginnen">Opnieuw beginnen</button></div>
     </div>
 
     <footer class="footer oc-footer">
@@ -1308,7 +1354,7 @@ const ocExport = (() => {
                 .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
         }
         function ocFileName(prefix) {
-            const p = ocKebab(document.getElementById('projectName').value);
+            const p = ocKebab(document.getElementById('projectName').value || ocProject('')).replace(/-?\d{4}-\d{2}-\d{2}-?/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
             return [prefix, p, new Date().toISOString().slice(0, 10)].filter(Boolean).join('-');
         }
         // Korte terugmelding op de knop zelf: deze tool heeft geen meldingenbalk.
@@ -1323,14 +1369,14 @@ const ocExport = (() => {
             const src = document.querySelector('.matrix-wrapper');
             // labels worden in pixels geplaatst: eerst op exportbreedte tekenen, dan klonen, dan terugzetten
             const prev = src.getAttribute('style');
-            src.style.width = width + 'px'; src.style.maxWidth = 'none'; src.style.padding = '2rem 2.5rem 2.5rem 2.5rem';
+            src.style.width = width + 'px'; src.style.maxWidth = 'none';
             renderMatrix();
             const clone = src.cloneNode(true);
             if (prev === null) src.removeAttribute('style'); else src.setAttribute('style', prev);
             renderMatrix();
             clone.removeAttribute('id');
             clone.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
-            clone.style.cssText = `width:${width}px;max-width:none;margin:0;padding:2rem 2.5rem 2.5rem 2.5rem;`;
+            clone.style.cssText = `width:${width}px;max-width:none;margin:0;`;
             return clone;
         }
         async function ocDownload(kind, btn) {
@@ -1369,17 +1415,26 @@ const ocExport = (() => {
 
         function EXPORT_LIST() {
             const groups = [
-                { name:'Kritiek',   sub:'direct aanpakken',  color:'#ef4444', text:'#dc2626' },
-                { name:'Hoog',      sub:'maatregelen nemen', color:'#f97316', text:'#ea580c' },
-                { name:'Gemiddeld', sub:'monitoren',         color:'#eab308', text:'#a16207' },
-                { name:'Laag',      sub:'accepteren',        color:'#22c55e', text:'#16a34a' }
+                { name:'Kritiek',   sub:'direct aanpakken',  color:'#ef4444', text:'#b91c1c' },
+                { name:'Hoog',      sub:'maatregelen nemen', color:'#f59e0b', text:'#92400e' },
+                { name:'Gemiddeld', sub:'opvolgen',          color:'#94a3b8', text:'#334155' },
+                { name:'Laag',      sub:'aanvaarden',        color:'#10b981', text:'#047857' }
             ];
             return groups.map(g => ocGroupHTML(g.color, g.text, g.name, g.sub,
-                risks.filter(r => getRiskLevel(r.probability, r.impact).name === g.name)
-                     .sort((a, b) => b.probability * b.impact - a.probability * a.impact)
-                     .map(r => ({ name: r.name, meta: `kans ${r.probability} · impact ${r.impact} · score ${r.probability * r.impact}` })))).join('');
+                ranked().filter(r => getRiskLevel(r.probability, r.impact).name === g.name)
+                     .map(r => ({ name: `${r.num}. ${r.name}`, meta: `kans ${r.probability} · impact ${r.impact} · score ${r.probability * r.impact}` })))).join('');
         }
         let risks = [];
+        let isVoorbeeld = false;   // voorbeelddata: voorbeeld:true in de opslag, niet gedeeld met andere tools
+        const VOORBEELD = { project: 'Digitaal premieloket renovatie', items: [
+            { name: 'Koppeling met het registratiesysteem raakt niet op tijd klaar', probability: 7, impact: 8 },
+            { name: 'Piek in aanvragen na de campagne in maart', probability: 8, impact: 5 },
+            { name: 'Advies informatieveiligheid komt laat', probability: 5, impact: 7 },
+            { name: 'Loketmedewerkers kennen het nieuwe formulier nog niet', probability: 6, impact: 4 },
+            { name: 'Regels voor de premie wijzigen tijdens het project', probability: 3, impact: 8 },
+            { name: 'Budget voor de testfase is te krap', probability: 4, impact: 3 },
+            { name: 'Tijdelijke uitval van de website', probability: 2, impact: 4 }
+        ] };
 
         /* ---------- Opslag en delen ---------- */
         const STORE_KEY = 'risico.v1';
@@ -1387,7 +1442,8 @@ const ocExport = (() => {
         function saveState() {
             if (!loaded) return;
             const project = document.getElementById('projectName').value;
-            try { localStorage.setItem(STORE_KEY, JSON.stringify({ project, items: risks })); } catch (e) {}
+            try { localStorage.setItem(STORE_KEY, JSON.stringify(isVoorbeeld ? { project, items: risks, voorbeeld: true } : { project, items: risks })); } catch (e) {}
+            if (isVoorbeeld) { ocShare.clear('risico'); return; }
             ocShare.publish('risico', 'Risicomatrix', [{
                 name: project.trim() || "Risico's",
                 items: risks.map(r => ({ type: 'risico', text: r.name, note: `kans ${r.probability} · impact ${r.impact}` }))
@@ -1401,6 +1457,7 @@ const ocExport = (() => {
                         name: String(x.name), probability: Math.max(1, Math.min(10, +x.probability || 1)), impact: Math.max(1, Math.min(10, +x.impact || 1))
                     }));
                     document.getElementById('projectName').value = d.project || '';
+                    isVoorbeeld = d.voorbeeld === true;
                 }
             } catch (e) {}
             if (!document.getElementById('projectName').value) document.getElementById('projectName').value = ocProject('');
@@ -1475,22 +1532,14 @@ const ocExport = (() => {
             const score = probability * impact;
             if (score >= 50) return { name: 'Kritiek', class: 'critical', action: 'Direct aanpakken' };
             if (score >= 25) return { name: 'Hoog', class: 'high', action: 'Maatregelen nemen' };
-            if (score >= 10) return { name: 'Gemiddeld', class: 'medium', action: 'Monitoren' };
-            return { name: 'Laag', class: 'low', action: 'Accepteren' };
+            if (score >= 10) return { name: 'Gemiddeld', class: 'medium', action: 'Opvolgen' };
+            return { name: 'Laag', class: 'low', action: 'Aanvaarden' };
         }
 
-        // Get risk level for a cell in the 5x5 grid
+        // Raster van 10 x 10: elke cel is een combinatie kans x impact, gekleurd met dezelfde grenzen als de stippen.
+        // De lijnen door het midden vallen zo op de grens tussen 5 en 6.
         function getCellRiskLevel(col, row) {
-            // col: 0-4 (probability: 1-2, 3-4, 5-6, 7-8, 9-10)
-            // row: 0-4 (impact: 9-10, 7-8, 5-6, 3-4, 1-2) - inverted because top is high
-            const probMid = (col * 2) + 1.5; // middle of probability range
-            const impactMid = ((4 - row) * 2) + 1.5; // middle of impact range
-            const score = probMid * impactMid;
-            
-            if (score >= 50) return 'critical';
-            if (score >= 25) return 'high';
-            if (score >= 10) return 'medium';
-            return 'low';
+            return getRiskLevel(col + 1, 10 - row).class;   // col 0-9 = kans 1-10, row 0-9 = impact 10-1
         }
 
         // Initialize the risk grid colors
@@ -1498,8 +1547,8 @@ const ocExport = (() => {
             const grid = document.getElementById('riskGrid');
             grid.innerHTML = '';
             
-            for (let row = 0; row < 5; row++) {
-                for (let col = 0; col < 5; col++) {
+            for (let row = 0; row < 10; row++) {
+                for (let col = 0; col < 10; col++) {
                     const cell = document.createElement('div');
                     cell.className = 'risk-cell';
                     cell.dataset.level = getCellRiskLevel(col, row);
@@ -1508,115 +1557,31 @@ const ocExport = (() => {
             }
         }
 
+        // Nummering zoals in de lijst: hoogste score eerst
+        function ranked() {
+            return risks.map((r, i) => ({ ...r, originalIndex: i }))
+                .sort((a, b) => (b.probability * b.impact) - (a.probability * a.impact) || a.originalIndex - b.originalIndex)
+                .map((r, k) => ({ ...r, num: k + 1 }));
+        }
+
         function renderMatrix() {
             const container = document.getElementById('pointsContainer');
             container.innerHTML = '';
-
             if (risks.length === 0) return;
-
-            const matrixRect = document.getElementById('matrixContainer').getBoundingClientRect();
-            const matrixWidth = matrixRect.width;
-            const matrixHeight = matrixRect.height;
-
-            // Group risks by position
-            const positionGroups = {};
-            risks.forEach((r, i) => {
-                const key = `${r.probability}-${r.impact}`;
-                if (!positionGroups[key]) {
-                    positionGroups[key] = [];
-                }
-                positionGroups[key].push({ ...r, index: i });
-            });
-
-            // Calculate positions with edge padding
-            const allPositions = [];
-
-            Object.values(positionGroups).forEach(group => {
-                const first = group[0];
-                // Map 1-10 to EDGE_PADDING to (100-EDGE_PADDING) percent
-                const baseXPercent = EDGE_PADDING + ((first.probability - 1) / 9) * (100 - 2 * EDGE_PADDING);
-                const baseYPercent = EDGE_PADDING + ((10 - first.impact) / 9) * (100 - 2 * EDGE_PADDING);
-
-                if (group.length === 1) {
-                    allPositions.push({
-                        ...first,
-                        xPercent: baseXPercent,
-                        yPercent: baseYPercent,
-                        level: getRiskLevel(first.probability, first.impact),
-                        stackCount: 1
-                    });
-                } else {
-                    // Multiple risks at same position - show as stacked
-                    allPositions.push({
-                        ...first,
-                        xPercent: baseXPercent,
-                        yPercent: baseYPercent,
-                        level: getRiskLevel(first.probability, first.impact),
-                        stackCount: group.length,
-                        stackedRisks: group
-                    });
-                }
-            });
-
-            // Create points and labels
-            allPositions.forEach((pos, i) => {
-                // Create point
+            const groups = {};
+            ranked().forEach(r => { const k = `${r.probability}-${r.impact}`; (groups[k] = groups[k] || []).push(r); });
+            Object.values(groups).forEach(group => {
+                const first = group[0], level = getRiskLevel(first.probability, first.impact);
                 const point = document.createElement('div');
                 point.className = 'risk-point';
-                point.style.left = pos.xPercent + '%';
-                point.style.top = pos.yPercent + '%';
-
+                point.style.left = ((first.probability - 0.5) * 10) + '%';
+                point.style.top = ((10.5 - first.impact) * 10) + '%';
                 const dot = document.createElement('div');
-                dot.className = `point-dot q-${pos.level.class}`;
-                
-                if (pos.stackCount > 1) {
-                    dot.title = pos.stackedRisks.map(r => r.name).join('\n');
-                    const badge = document.createElement('div');
-                    badge.className = 'point-stack-badge';
-                    badge.textContent = pos.stackCount;
-                    point.appendChild(badge);
-                } else {
-                    dot.title = `${pos.name}\nKans: ${pos.probability} · Impact: ${pos.impact}\nScore: ${pos.probability * pos.impact} (${pos.level.name})`;
-                }
-
+                dot.className = `point-dot q-${level.class}${group.length > 1 ? ' multi' : ''}`;
+                dot.textContent = group.length > 3 ? `${group[0].num}+${group.length - 1}` : group.map(r => r.num).join('·');
+                dot.title = group.map(r => `${r.num}. ${r.name}`).join('\n') + `\nKans ${first.probability} · impact ${first.impact} · score ${first.probability * first.impact} (${level.name})`;
                 point.appendChild(dot);
                 container.appendChild(point);
-
-                // Create label
-                const label = document.createElement('div');
-                label.className = 'risk-label';
-                
-                if (pos.stackCount > 1) {
-                    label.textContent = `${pos.stackCount} risico's`;
-                } else {
-                    label.textContent = pos.name.length > 20 ? pos.name.substring(0, 18) + '...' : pos.name;
-                }
-
-                // Position label
-                const xPx = (pos.xPercent / 100) * matrixWidth;
-                const yPx = (pos.yPercent / 100) * matrixHeight;
-                
-                // Determine label position based on quadrant
-                if (pos.xPercent > 50) {
-                    label.style.right = (100 - pos.xPercent) + '%';
-                    label.style.transform = 'translateX(calc(100% + 10px))';
-                } else {
-                    label.style.left = pos.xPercent + '%';
-                    label.style.transform = 'translateX(calc(-100% - 10px))';
-                }
-                
-                label.style.top = pos.yPercent + '%';
-                label.style.transform += ' translateY(-50%)';
-
-                container.appendChild(label);
-                // Past het label niet naast het punt binnen de kaart (smal scherm)? Dan aan de andere kant.
-                const box = (container.closest('.card') || document.body).getBoundingClientRect();
-                const lr = label.getBoundingClientRect();
-                if (box.width && (lr.right > box.right - 4 || lr.left < box.left + 4)) {
-                    label.style.left = ''; label.style.right = '';
-                    if (pos.xPercent > 50) { label.style.right = (100 - pos.xPercent) + '%'; label.style.transform = 'translateX(-10px) translateY(-50%)'; }
-                    else { label.style.left = pos.xPercent + '%'; label.style.transform = 'translateX(10px) translateY(-50%)'; }
-                }
             });
         }
 
@@ -1626,12 +1591,13 @@ const ocExport = (() => {
             const countEl = document.getElementById('riskCount');
 
             // Sort by risk score (highest first)
-            const sortedRisks = [...risks].map((r, i) => ({ ...r, originalIndex: i }))
-                .sort((a, b) => (b.probability * b.impact) - (a.probability * a.impact));
+            const sortedRisks = ranked();
 
             countEl.textContent = risks.length > 0 ? `(${risks.length})` : '';
-            const pngBtn = document.getElementById('downloadPng');
-            pngBtn.classList.toggle('btn-primary', risks.length > 0); pngBtn.classList.toggle('btn-secondary', !risks.length);
+            ['downloadPng', 'downloadPdf', 'downloadCsv'].forEach(id => { document.getElementById(id).disabled = !risks.length; });
+            document.getElementById('matrixDl').hidden = !risks.length;
+            document.getElementById('vbBar').hidden = !isVoorbeeld;
+            document.getElementById('restartRow').hidden = !risks.length || isVoorbeeld;
 
             if (risks.length === 0) {
                 container.innerHTML = `
@@ -1640,7 +1606,8 @@ const ocExport = (() => {
                             <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
                         <div>Nog geen risico's</div>
-                        <div style="font-size: 0.75rem; margin-top: 0.25rem;">Voeg links een risico toe</div>
+                        <div style="font-size: 0.75rem; margin-top: 0.25rem;">Voeg links een risico toe, of kijk eerst hoe het eruitziet.</div>
+                        <button type="button" class="btn btn-secondary vb-start" data-vb="start">Voorbeeld bekijken</button>
                     </div>
                 `;
                 return;
@@ -1651,6 +1618,7 @@ const ocExport = (() => {
                 const score = r.probability * r.impact;
                 return `
                     <div class="risk-item q-${level.class}">
+                        <span class="risk-num q-${level.class}" aria-hidden="true">${r.num}</span>
                         <div class="risk-info">
                             <div class="risk-name">${ocEsc(r.name)}</div>
                             <div class="risk-meta">Kans ${r.probability} · Impact ${r.impact} · <span class="risk-score q-${level.class}">${score} ${level.name}</span></div>
@@ -1670,7 +1638,7 @@ const ocExport = (() => {
 
             if (!name) {
                 nameInput.focus();
-                nameInput.style.borderColor = '#f97316';
+                nameInput.style.borderColor = '#f59e0b';
                 setTimeout(() => nameInput.style.borderColor = '', 1000);
                 return;
             }
@@ -1682,7 +1650,7 @@ const ocExport = (() => {
 
             // Visual feedback
             addBtn.textContent = '✓ Toegevoegd';
-            addBtn.style.background = '#22c55e';
+            addBtn.style.background = '#10b981';
             setTimeout(() => {
                 addBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Toevoegen`;
                 addBtn.style.background = '';
@@ -1733,6 +1701,7 @@ const ocExport = (() => {
 
         function reset() {
             risks = [];
+            isVoorbeeld = false;
             document.getElementById('projectName').value = ocProject('');
             document.getElementById('riskName').value = '';
             document.getElementById('probabilitySlider').value = 5;
@@ -1763,7 +1732,7 @@ const ocExport = (() => {
             const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `${name.toLowerCase().replace(/\s+/g, '-')}-risicos.csv`;
+            link.download = ocFileName(FILE_PREFIX) + '.csv';
             link.click();
         }
 
@@ -1790,11 +1759,28 @@ const ocExport = (() => {
                 if (e.key === 'Enter') addRisk();
             });
 
-            document.getElementById('resetBtn').addEventListener('click', wipeAll);
             document.getElementById('ocRestart').addEventListener('click', wipeAll);
             document.getElementById('downloadPng').addEventListener('click', downloadPng);
             document.getElementById('downloadPdf').addEventListener('click', downloadPdf);
             document.getElementById('downloadCsv').addEventListener('click', downloadCsv);
+            document.getElementById('matrixDl').addEventListener('click', e => { const b = e.target.closest('[data-dl]'); if (b) ocDownload(b.dataset.dl, b); });
+            document.addEventListener('click', e => {
+                const b = e.target.closest('[data-vb]'); if (!b) return;
+                if (b.dataset.vb === 'start') {
+                    risks = VOORBEELD.items.map(x => ({ ...x }));
+                    isVoorbeeld = true;
+                    document.getElementById('projectName').value = VOORBEELD.project;
+                    renderMatrix(); renderRiskList();
+                    ocToast('Voorbeeld geladen');
+                } else if (b.dataset.vb === 'wis') {
+                    const snap = ocStoreSnapshot();
+                    reset();
+                    ocToast('Voorbeeld gewist', () => { ocStoreRestore(snap); risks = []; loadState(); renderMatrix(); renderRiskList(); });
+                } else if (b.dataset.vb === 'eigen') {
+                    isVoorbeeld = false; saveState(); renderRiskList();
+                    ocToast('Het voorbeeld is nu van jou');
+                }
+            });
 
             // Tooltips
             const tooltip = document.getElementById('tooltip');
@@ -1813,15 +1799,6 @@ const ocExport = (() => {
                 tooltip.classList.remove('show');
             }
 
-            document.getElementById('axisLabelX').addEventListener('mouseenter', e => {
-                showTooltip(e.target, 'Kans: Hoe waarschijnlijk is het dat dit risico zich voordoet? Rechts = grotere kans.');
-            });
-            document.getElementById('axisLabelX').addEventListener('mouseleave', hideTooltip);
-
-            document.getElementById('axisLabelY').addEventListener('mouseenter', e => {
-                showTooltip(e.target, 'Impact: Wat is de ernst van de gevolgen als dit risico zich voordoet? Boven = grotere impact.');
-            });
-            document.getElementById('axisLabelY').addEventListener('mouseleave', hideTooltip);
 
             document.getElementById('probabilityLabel').addEventListener('mouseenter', e => {
                 showTooltip(e.target, 'Kans: Hoe waarschijnlijk is het dat dit risico zich voordoet? 1 = zeer onwaarschijnlijk, 10 = zeer waarschijnlijk.');
@@ -1834,9 +1811,7 @@ const ocExport = (() => {
             document.getElementById('impactLabel').addEventListener('mouseleave', hideTooltip);
 
             // Uitleg ook bij toetsenbordfocus en tikken (niet enkel bij muis)
-            [['axisLabelX', 'Kans: Hoe waarschijnlijk is het dat dit risico zich voordoet? Rechts = grotere kans.'],
-             ['axisLabelY', 'Impact: Wat is de ernst van de gevolgen als dit risico zich voordoet? Boven = grotere impact.'],
-             ['probabilityLabel', 'Kans: Hoe waarschijnlijk is het dat dit risico zich voordoet? 1 = zeer onwaarschijnlijk, 10 = zeer waarschijnlijk.'],
+            [['probabilityLabel', 'Kans: Hoe waarschijnlijk is het dat dit risico zich voordoet? 1 = zeer onwaarschijnlijk, 10 = zeer waarschijnlijk.'],
              ['impactLabel', 'Impact: Wat is de ernst van de gevolgen? 1 = verwaarloosbaar effect, 10 = catastrofale gevolgen voor het project.']].forEach(([id, text]) => {
                 const el = document.getElementById(id);
                 el.addEventListener('focus', () => showTooltip(el, text));

@@ -32,15 +32,15 @@
             --red-500: #ef4444;
             --red-600: #dc2626;
             
-            --orange-50: #fffbeb;
-            --orange-100: #fef3c7;
-            --orange-500: #f59e0b;
-            --orange-600: #b45309;
+            --orange-50: #fff7ed;
+            --orange-100: #ffedd5;
+            --orange-500: #f97316;
+            --orange-600: #c2410c;
             
-            --yellow-50: #f8fafc;
-            --yellow-100: #f1f5f9;
-            --yellow-500: #94a3b8;
-            --yellow-600: #475569;
+            --yellow-50: #fefce8;
+            --yellow-100: #fef9c3;
+            --yellow-500: #facc15;
+            --yellow-600: #854d0e;
             
             --green-50: #ecfdf5;
             --green-100: #d1fae5;
@@ -889,8 +889,8 @@
         .quadrant-label.q-bl { color:#065f46; }
         .quadrant-label.q-br { color:#334155; }
         .legend-item.q-critical, .risk-score.q-critical { color:#991b1b; }
-        .legend-item.q-high, .risk-score.q-high { color:#92400e; }
-        .legend-item.q-medium, .risk-score.q-medium { color:#334155; }
+        .legend-item.q-high, .risk-score.q-high { color:#9a3412; }
+        .legend-item.q-medium, .risk-score.q-medium { color:#854d0e; }
         .legend-item.q-low, .risk-score.q-low { color:#065f46; }
         .risk-name { overflow-wrap:anywhere; }
         .axis-label:focus-visible { color:#047857; border-color:#047857; }
@@ -916,7 +916,7 @@
         .matrix-wrapper { padding: 0.25rem 0.25rem 2rem 2rem; }
         @media (max-width: 768px) { .matrix-wrapper { padding: 0.25rem 0.25rem 2rem 2rem; } }
         .risk-cell { border: 1px solid rgba(255,255,255,0.6); }
-        .risk-cell[data-level="medium"] { background: #f1f5f9; }
+        .risk-cell[data-level="medium"] { background: #fef9c3; }
         .axis-label, .axis-label:hover, .axis-label:focus-visible { background: none; border: 0; padding: 0; color: #475569; cursor: default; font-size: 0.8125rem; font-weight: 600; border-radius: 0; }
         .axis-label::before { content: none; }
         .axis-label-x { left: 2rem; right: 0.25rem; bottom: 0.25rem; top: auto; text-align: center; }
@@ -928,13 +928,13 @@
         .point-dot { width: auto; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; border: 2px solid #fff; display: flex; align-items: center; justify-content: center;
             font-size: 0.6875rem; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; line-height: 1; white-space: nowrap; box-shadow: 0 1px 4px rgba(15,23,42,0.3); cursor: default; }
         .point-dot:hover { transform: scale(1.15); }
-        .point-dot.q-high { color: #451a03; }
-        .point-dot.q-medium { background: #64748b; }
+        .point-dot.q-high { color: #ffffff; }
+        .point-dot.q-medium { background: #facc15; color: #422006; }
         .point-dot.q-critical { background: #dc2626; }
         .risk-num { flex-shrink: 0; min-width: 24px; height: 24px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
         .risk-num.q-critical { background: #dc2626; }
-        .risk-num.q-high { background: #f59e0b; color: #451a03; }
-        .risk-num.q-medium { background: #64748b; }
+        .risk-num.q-high { background: #f97316; color: #ffffff; }
+        .risk-num.q-medium { background: #facc15; color: #422006; }
         .risk-num.q-low { background: #10b981; }
         .risk-item { gap: 0.625rem; padding-left: 0.75rem; }
         .slider-value, .risk-meta { font-variant-numeric: tabular-nums; }
@@ -1416,8 +1416,8 @@ const ocExport = (() => {
         function EXPORT_LIST() {
             const groups = [
                 { name:'Kritiek',   sub:'direct aanpakken',  color:'#ef4444', text:'#b91c1c' },
-                { name:'Hoog',      sub:'maatregelen nemen', color:'#f59e0b', text:'#92400e' },
-                { name:'Gemiddeld', sub:'opvolgen',          color:'#94a3b8', text:'#334155' },
+                { name:'Hoog',      sub:'maatregelen nemen', color:'#f97316', text:'#9a3412' },
+                { name:'Gemiddeld', sub:'opvolgen',          color:'#facc15', text:'#854d0e' },
                 { name:'Laag',      sub:'aanvaarden',        color:'#10b981', text:'#047857' }
             ];
             return groups.map(g => ocGroupHTML(g.color, g.text, g.name, g.sub,

@@ -331,7 +331,7 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            transition: all 0.2s;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
         }
 
         .btn svg {
@@ -956,6 +956,50 @@
         .slider-group input[type="range"]::-webkit-slider-thumb { width: 24px; height: 24px; }
         .slider-group input[type="range"]::-moz-range-thumb { width: 24px; height: 24px; }
         .slider-hints { margin-top: -0.25rem; }
+        /* ===== Per project (tabbladen), maatregel/eigenaar/status, foutmelding, herschikking ===== */
+        .proj-tabs { display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: none; justify-content: safe center; padding: 0.125rem 0.25rem 0.25rem; margin: 0 0 0.75rem; }
+        .proj-tabs::-webkit-scrollbar { display: none; }
+        .ptab { flex-shrink: 0; min-height: 44px; padding: 0.4375rem 0.875rem; border-radius: 999px; font: inherit; font-size: 0.875rem; font-weight: 600; border: 1px solid var(--slate-200); background: var(--white); color: var(--slate-600); white-space: nowrap; display: flex; align-items: center; gap: 0.375rem; cursor: pointer; }
+        .ptab .n { font-size: 0.75rem; font-weight: 500; color: var(--slate-500); font-variant-numeric: tabular-nums; }
+        .ptab.active { background: var(--slate-800); border-color: var(--slate-800); color: var(--white); }
+        .ptab.active .n { color: var(--slate-300); }
+        .ptab.add { color: #047857; border-style: dashed; }
+        .ptab .vb-tag { font-size: 0.6875rem; font-weight: 600; padding: 0 0.375rem; border-radius: 999px; background: #fef3c7; color: #92400e; }
+        .main-grid > * { min-width: 0; }
+        .card { min-width: 0; }
+        .download-row { flex-wrap: wrap; }
+        .download-row .btn { flex: 1 1 5.5rem; }
+        .matrix-dl { flex-wrap: wrap; }
+        .field-error { margin-top: 0.375rem; font-size: 0.8125rem; font-weight: 600; color: #b91c1c; }
+        .form-group input[aria-invalid="true"] { border-color: #b91c1c; }
+        .more-fields { border-top: 1px solid var(--slate-100); padding-top: 0.25rem; }
+        .more-fields summary { min-height: 44px; display: flex; align-items: center; gap: 0.375rem; cursor: pointer; font-size: 0.8125rem; font-weight: 600; color: #047857; list-style: none; border-radius: 8px; }
+        .more-fields summary::-webkit-details-marker { display: none; }
+        .more-fields summary::before { content: '+'; font-size: 1rem; width: 1rem; text-align: center; }
+        .more-fields[open] summary::before { content: '−'; }
+        .more-fields .form-group { margin-top: 0.5rem; }
+        .form-group select { width: 100%; min-height: 44px; padding: 0 0.75rem; font: inherit; font-size: 0.9375rem; color: var(--slate-800); background: var(--white); border: 1.5px solid var(--slate-200); border-radius: var(--radius-sm); }
+        .risk-item { flex-wrap: wrap; }
+        .risk-open { flex: 1; min-width: 0; text-align: left; background: none; border: 0; padding: 0.25rem 0; font: inherit; color: inherit; cursor: pointer; border-radius: 6px; min-height: 44px; }
+        .risk-open .risk-name, .risk-open .risk-meta, .risk-open .risk-extra { display: block; }
+        .risk-extra { font-size: 0.75rem; color: #475569; margin-top: 2px; overflow-wrap: anywhere; }
+        .risk-extra.hint { color: #047857; font-weight: 600; }
+        .risk-st { display: inline-block; font-weight: 600; padding: 0 0.375rem; border-radius: 999px; background: #f1f5f9; color: #334155; }
+        .risk-st.st-klaar { background: #d1fae5; color: #065f46; }
+        .risk-edit { flex-basis: 100%; display: grid; gap: 0.625rem; padding: 0.5rem 0 0.25rem; }
+        .risk-edit[hidden] { display: none !important; }
+        .risk-edit label { display: block; font-size: 0.75rem; font-weight: 500; color: var(--slate-500); margin-bottom: 0.25rem; }
+        .risk-edit textarea, .risk-edit input, .risk-edit select { width: 100%; min-height: 44px; padding: 0.5rem 0.75rem; font: inherit; font-size: 0.9375rem; color: var(--slate-800); background: var(--white); border: 1.5px solid var(--slate-200); border-radius: var(--radius-sm); }
+        .risk-edit textarea { resize: vertical; }
+        .risk-edit-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; }
+        @media (max-width: 420px) { .risk-edit-row { grid-template-columns: 1fr; } }
+        .risk-edit .done-btn { justify-self: end; min-height: 44px; padding: 0 1rem; border-radius: 10px; border: 1.5px solid #a7f3d0; background: #fff; color: #047857; font: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
+        .restart-row { gap: 0.25rem; flex-wrap: wrap; }
+        @media (max-width: 480px) {
+            .card { padding: 1rem; }
+            .container { padding-left: 0.75rem; padding-right: 0.75rem; }
+            .risk-item { padding-right: 0.5rem; }
+        }
         [hidden] { display: none !important; }
     </style>
 </head>
@@ -973,6 +1017,7 @@
     </header>
 
     <div class="container">
+        <nav class="proj-tabs" id="projTabs" aria-label="Projecten"></nav>
         <div class="project-bar">
             <input type="text" class="project-name-input" id="projectName" placeholder="Projectnaam invullen..." autocomplete="off" aria-label="Projectnaam">
         </div>
@@ -989,7 +1034,8 @@
                 <div class="risk-form">
                     <div class="form-group">
                         <label for="riskName">Risico omschrijving</label>
-                        <input type="text" id="riskName" placeholder="Bijv. Vertraging leverancier, Budget overschrijding..." autocomplete="off">
+                        <input type="text" id="riskName" placeholder="Bijv. Vertraging leverancier, Budget overschrijding..." autocomplete="off" aria-describedby="riskNameErr">
+                        <p class="field-error" id="riskNameErr" hidden>Typ eerst wat er kan misgaan.</p>
                     </div>
                     
                     <div class="slider-group">
@@ -1011,12 +1057,25 @@
                         </div>
                         <input type="range" id="impactSlider" min="1" max="10" value="5">
                         <div class="slider-hints">
-                            <span>verwaarloosbaar</span>
-                            <span>catastrofaal</span>
+                            <span>heel klein</span>
+                            <span>heel groot</span>
                         </div>
                     </div>
                     
-                    <button class="btn btn-primary btn-add" id="addRisk">
+                    <details class="more-fields" id="moreFields">
+                        <summary>Maatregel en eigenaar (optioneel)</summary>
+                        <div class="form-group">
+                            <label for="riskMeasure">Maatregel</label>
+                            <input type="text" id="riskMeasure" placeholder="Wat doe je om het te voorkomen of te beperken?" autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <label for="riskOwner">Eigenaar</label>
+                            <input type="text" id="riskOwner" placeholder="Wie volgt dit op?" autocomplete="off" list="ownerList">
+                        </div>
+                    </details>
+                    <datalist id="ownerList"></datalist>
+
+                    <button class="btn btn-primary btn-add" id="addRisk" type="button">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
                         Toevoegen
                     </button>
@@ -1067,7 +1126,7 @@
                             <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
                         <div>Nog geen risico's</div>
-                        <div style="font-size: 0.75rem; margin-top: 0.25rem;">Voeg links een risico toe, of kijk eerst hoe het eruitziet.</div>
+                        <div style="font-size: 0.75rem; margin-top: 0.25rem;">Voeg eerst een risico toe. Of bekijk een voorbeeld.</div>
                         <button type="button" class="btn btn-secondary vb-start" data-vb="start">Voorbeeld bekijken</button>
                     </div>
                 </div>
@@ -1333,6 +1392,13 @@ const ocExport = (() => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: landscape ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
     const scale = w / c.width, pageH = (ph - 2 * MARGIN) / scale;   // paginahoogte in canvaspixels
+    // Net te hoog voor één pagina (bv. alleen de voettekst): verkleinen tot het past, geen lege tweede pagina.
+    if (c.height > pageH && c.height <= pageH * 1.2) {
+      const f = pageH / c.height, ww = w * f;
+      doc.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', MARGIN + (w - ww) / 2, MARGIN, ww, ph - 2 * MARGIN);
+      save(doc.output('blob'), name + '.pdf');
+      return;
+    }
     for (let y = 0, i = 0; y < c.height - 2; y += pageH, i++) {
       const h = Math.min(pageH, c.height - y);
       const part = document.createElement('canvas'); part.width = c.width; part.height = h;
@@ -1392,9 +1458,9 @@ const ocExport = (() => {
         }
         function buildExport() {
             const node = document.createElement('div');
-            node.style.cssText = 'display:grid;grid-template-columns:600px 1fr;gap:32px;align-items:start;';
+            node.style.cssText = 'display:grid;grid-template-columns:540px 1fr;gap:32px;align-items:start;';
             const left = document.createElement('div');
-            left.appendChild(ocMatrixClone(600));
+            left.appendChild(ocMatrixClone(540));
             const right = document.createElement('div');
             right.innerHTML = EXPORT_LIST();
             node.append(left, right);
@@ -1408,8 +1474,9 @@ const ocExport = (() => {
                 <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:${textColor}">
                     <span style="width:9px;height:9px;border-radius:50%;background:${color}"></span>${ocEsc(title)}
                     <span style="font-weight:500;letter-spacing:0;text-transform:none;color:#64748b">· ${ocEsc(sub)}</span></div>
-                ${rows.map(r => `<div data-oc-keep style="display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:14px;color:#1e293b">
-                    <span>${ocEsc(r.name)}</span><span style="white-space:nowrap;font-size:12px;color:#64748b">${ocEsc(r.meta)}</span></div>`).join('')}
+                ${rows.map(r => `<div data-oc-keep style="padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:14px;color:#1e293b">
+                    <div style="display:flex;justify-content:space-between;gap:12px"><span>${ocEsc(r.name)}</span><span style="white-space:nowrap;font-size:12px;color:#64748b">${ocEsc(r.meta)}</span></div>
+                    ${r.extra ? `<div style="font-size:12px;color:#475569;margin-top:2px">${ocEsc(r.extra)}</div>` : ''}</div>`).join('')}
             </div>`;
         }
 
@@ -1422,7 +1489,8 @@ const ocExport = (() => {
             ];
             return groups.map(g => ocGroupHTML(g.color, g.text, g.name, g.sub,
                 ranked().filter(r => getRiskLevel(r.probability, r.impact).name === g.name)
-                     .map(r => ({ name: `${r.num}. ${r.name}`, meta: `kans ${r.probability} · impact ${r.impact} · score ${r.probability * r.impact}` })))).join('');
+                     .map(r => ({ name: `${r.num}. ${r.name}`, meta: `kans ${r.probability} · impact ${r.impact} · score ${r.probability * r.impact}`,
+                         extra: [r.measure ? `Maatregel: ${r.measure}` : '', r.owner ? `Eigenaar: ${r.owner}` : '', STATUS[r.status] || ''].filter(Boolean).join(' · ') })))).join('');
         }
         let risks = [];
         let isVoorbeeld = false;   // voorbeelddata: voorbeeld:true in de opslag, niet gedeeld met andere tools
@@ -1436,32 +1504,106 @@ const ocExport = (() => {
             { name: 'Tijdelijke uitval van de website', probability: 2, impact: 4 }
         ] };
 
-        /* ---------- Opslag en delen ---------- */
+        /* ---------- Opslag en delen: één lijst risico's per project ----------
+           risico.v1 = { projects:[{ id, name, items:[{ name, probability, impact, measure?, owner?, status? }], voorbeeld? }], current }
+           Oud formaat { project, items, voorbeeld? } wordt bij het laden het eerste project. */
         const STORE_KEY = 'risico.v1';
+        const STATUS = { open: 'Nog te doen', bezig: 'Maatregel loopt', klaar: 'Onder controle' };
+        const uid = () => Math.random().toString(36).slice(2, 10);
+        let state = null;
         let loaded = false;   // pas bewaren nadat de opgeslagen gegevens ingelezen zijn
+        let openIdx = null;   // risico waarvan de details open staan (index in risks)
+        const cur = () => state.projects.find(p => p.id === state.current) || state.projects[0];
+        const clamp10 = v => Math.max(1, Math.min(10, Math.round(+v) || 1));
+        const str = (v, n) => typeof v === 'string' ? v.slice(0, n) : '';
+        function cleanRisk(x) {
+            const r = { name: String(x.name).slice(0, 300), probability: clamp10(x.probability), impact: clamp10(x.impact) };
+            const m = str(x.measure, 500), o = str(x.owner, 80);
+            if (m) r.measure = m;
+            if (o) r.owner = o;
+            if (STATUS[x.status]) r.status = x.status;
+            return r;
+        }
+        function cleanItems(arr) { return (Array.isArray(arr) ? arr : []).filter(x => x && typeof x.name === 'string' && x.name.trim()).map(cleanRisk); }
+        function validState(d) {
+            if (d && Array.isArray(d.projects)) {
+                const projects = d.projects.filter(p => p && typeof p === 'object').map(p => {
+                    const o = { id: typeof p.id === 'string' && p.id ? p.id : uid(), name: str(p.name, 80), items: cleanItems(p.items) };
+                    if (p.voorbeeld === true) o.voorbeeld = true;
+                    return o;
+                });
+                if (projects.length) return { projects, current: projects.some(p => p.id === d.current) ? d.current : projects[0].id };
+            }
+            if (d && Array.isArray(d.items)) {   // oud formaat: één lijst
+                const p = { id: uid(), name: str(d.project, 80).trim() || ocProject('Mijn project'), items: cleanItems(d.items) };
+                if (d.voorbeeld === true) p.voorbeeld = true;
+                return { projects: [p], current: p.id };
+            }
+            return null;
+        }
+        function blankProject(name) { return { id: uid(), name: name || ocProject('Mijn project'), items: [] }; }
+        // Het werk van het actieve project in de vertrouwde variabelen zetten
+        function syncFromState() {
+            const p = cur();
+            state.current = p.id;
+            risks = p.items;
+            isVoorbeeld = p.voorbeeld === true;
+            openIdx = null;
+            const el = document.getElementById('projectName');
+            if (document.activeElement !== el) el.value = p.name;
+        }
+        const riskNote = r => [`kans ${r.probability} · impact ${r.impact}`, r.measure ? `maatregel: ${r.measure}` : '', STATUS[r.status] || ''].filter(Boolean).join(' · ');
         function saveState() {
             if (!loaded) return;
-            const project = document.getElementById('projectName').value;
-            try { localStorage.setItem(STORE_KEY, JSON.stringify(isVoorbeeld ? { project, items: risks, voorbeeld: true } : { project, items: risks })); } catch (e) {}
-            if (isVoorbeeld) { ocShare.clear('risico'); return; }
-            ocShare.publish('risico', 'Risicomatrix', [{
-                name: project.trim() || "Risico's",
-                items: risks.map(r => ({ type: 'risico', text: r.name, note: `kans ${r.probability} · impact ${r.impact}` }))
-            }]);
+            const p = cur();
+            p.items = risks;
+            p.name = document.getElementById('projectName').value.slice(0, 80);
+            if (isVoorbeeld) p.voorbeeld = true; else delete p.voorbeeld;
+            try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+            // Voorbeelden gaan nooit naar andere tools
+            const lists = state.projects.filter(x => !x.voorbeeld && x.items.length).map(x => ({
+                name: x.name.trim() || "Risico's",
+                items: x.items.map(r => ({ type: 'risico', text: r.name, note: riskNote(r), who: r.owner || undefined }))
+            }));
+            if (lists.length) ocShare.publish('risico', 'Risicomatrix', lists); else ocShare.clear('risico');
         }
         function loadState() {
-            try {
-                const d = JSON.parse(localStorage.getItem(STORE_KEY));
-                if (d && Array.isArray(d.items)) {
-                    risks = d.items.filter(x => x && x.name).map(x => ({
-                        name: String(x.name), probability: Math.max(1, Math.min(10, +x.probability || 1)), impact: Math.max(1, Math.min(10, +x.impact || 1))
-                    }));
-                    document.getElementById('projectName').value = d.project || '';
-                    isVoorbeeld = d.voorbeeld === true;
-                }
-            } catch (e) {}
-            if (!document.getElementById('projectName').value) document.getElementById('projectName').value = ocProject('');
+            let d = null;
+            try { d = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) {}
+            state = validState(d) || (() => { const p = blankProject(); return { projects: [p], current: p.id }; })();
+            // open het actieve project uit de app, als het hier al bestaat
+            const ap = ocProject('');
+            if (ap) { const m = state.projects.find(x => x.name === ap); if (m) state.current = m.id; }
+            syncFromState();
             loaded = true;
+        }
+        function renderTabs() {
+            const el = document.getElementById('projTabs');
+            el.innerHTML = state.projects.map(p => `<button type="button" class="ptab${p.id === state.current ? ' active' : ''}" data-proj="${ocEsc(p.id)}"${p.id === state.current ? ' aria-current="true"' : ''}>${ocEsc(p.name.trim() || 'Naamloos')}${p.voorbeeld ? '<span class="vb-tag">voorbeeld</span>' : ''}<span class="n">${p.items.length || ''}</span></button>`).join('')
+                + '<button type="button" class="ptab add" id="newProj">+ Project</button>';
+        }
+        function renderAll() { renderMatrix(); renderRiskList(); }
+        function switchProject(id) {
+            saveState();
+            state.current = id; syncFromState(); clearErr();
+            renderAll();
+            try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+        }
+        function newProject() {
+            saveState();
+            const p = blankProject('Nieuw project');
+            state.projects.push(p); state.current = p.id; syncFromState(); clearErr();
+            renderAll();
+            const n = document.getElementById('projectName'); n.focus(); n.select();
+            requestAnimationFrame(() => { const a = document.querySelector('.ptab.active'); a && a.scrollIntoView({ inline: 'nearest', block: 'nearest' }); });
+        }
+        /* Eén project verwijderen (als er meer zijn): meteen, met Ongedaan */
+        function deleteProject() {
+            const snap = JSON.stringify(state), p = cur(), idx = state.projects.indexOf(p);
+            state.projects.splice(idx, 1);
+            state.current = state.projects[Math.max(0, idx - 1)].id;
+            syncFromState(); renderAll();
+            ocToast(`${p.name.trim() || 'Naamloos'} verwijderd`, () => { state = JSON.parse(snap); syncFromState(); renderAll(); });
         }
 
         /* Melding met Ongedaan (6 s) */
@@ -1585,8 +1727,16 @@ const ocExport = (() => {
             });
         }
 
+        function riskExtra(r) {
+            const parts = [];
+            if (r.measure) parts.push(`Maatregel: ${ocEsc(r.measure)}`);
+            if (r.owner) parts.push(ocEsc(r.owner));
+            if (r.status) parts.push(`<span class="risk-st st-${r.status}">${STATUS[r.status]}</span>`);
+            return parts.length ? `<span class="risk-extra">${parts.join(' · ')}</span>` : '';
+        }
         function renderRiskList() {
             saveState();
+            renderTabs();
             const container = document.getElementById('riskList');
             const countEl = document.getElementById('riskCount');
 
@@ -1597,17 +1747,23 @@ const ocExport = (() => {
             ['downloadPng', 'downloadPdf', 'downloadCsv'].forEach(id => { document.getElementById(id).disabled = !risks.length; });
             document.getElementById('matrixDl').hidden = !risks.length;
             document.getElementById('vbBar').hidden = !isVoorbeeld;
-            document.getElementById('restartRow').hidden = !risks.length || isVoorbeeld;
+            const many = state.projects.length > 1;
+            const rb = document.getElementById('ocRestart');
+            rb.textContent = many ? 'Verwijder dit project' : 'Opnieuw beginnen';
+            rb.title = many ? 'Dit project en zijn risico\'s verwijderen' : 'Alles wissen en opnieuw beginnen';
+            document.getElementById('restartRow').hidden = many ? false : (!risks.length || isVoorbeeld);
+            const owners = [...new Set(state.projects.flatMap(p => p.items.map(r => r.owner)).filter(Boolean))];
+            document.getElementById('ownerList').innerHTML = owners.map(o => `<option value="${ocEsc(o)}">`).join('');
 
             if (risks.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                             <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                         </svg>
                         <div>Nog geen risico's</div>
-                        <div style="font-size: 0.75rem; margin-top: 0.25rem;">Voeg links een risico toe, of kijk eerst hoe het eruitziet.</div>
-                        <button type="button" class="btn btn-secondary vb-start" data-vb="start">Voorbeeld bekijken</button>
+                        <div style="font-size: 0.75rem; margin-top: 0.25rem;">Voeg eerst een risico toe. Of bekijk een voorbeeld.</div>
+                        ${state.projects.some(p => p.voorbeeld) ? '' : '<button type="button" class="btn btn-secondary vb-start" data-vb="start">Voorbeeld bekijken</button>'}
                     </div>
                 `;
                 return;
@@ -1616,20 +1772,40 @@ const ocExport = (() => {
             container.innerHTML = sortedRisks.map(r => {
                 const level = getRiskLevel(r.probability, r.impact);
                 const score = r.probability * r.impact;
+                const i = r.originalIndex, open = openIdx === i;
+                const extra = riskExtra(r) || (open ? '' : '<span class="risk-extra hint">+ maatregel en eigenaar</span>');
                 return `
                     <div class="risk-item q-${level.class}">
                         <span class="risk-num q-${level.class}" aria-hidden="true">${r.num}</span>
-                        <div class="risk-info">
-                            <div class="risk-name">${ocEsc(r.name)}</div>
-                            <div class="risk-meta">Kans ${r.probability} · Impact ${r.impact} · <span class="risk-score q-${level.class}">${score} ${level.name}</span></div>
-                        </div>
-                        <button class="risk-delete" type="button" data-del="${r.originalIndex}" title="Verwijderen" aria-label="Verwijder ${ocEsc(r.name)}">
+                        <button type="button" class="risk-open" data-open="${i}" aria-expanded="${open}" aria-controls="re-${i}">
+                            <span class="risk-name">${ocEsc(r.name)}</span>
+                            <span class="risk-meta">Kans ${r.probability} · Impact ${r.impact} · <span class="risk-score q-${level.class}">${score} ${level.name}</span></span>
+                            ${extra}
+                        </button>
+                        <button class="risk-delete" type="button" data-del="${i}" title="Verwijderen" aria-label="Verwijder ${ocEsc(r.name)}">
                             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                         </button>
+                        <div class="risk-edit" id="re-${i}"${open ? '' : ' hidden'}>
+                            <div><label for="rm-${i}">Maatregel</label><textarea id="rm-${i}" rows="2" data-f="measure" data-i="${i}" placeholder="Wat doe je om het te voorkomen of te beperken?">${ocEsc(r.measure || '')}</textarea></div>
+                            <div class="risk-edit-row">
+                                <div><label for="ro-${i}">Eigenaar</label><input id="ro-${i}" type="text" list="ownerList" data-f="owner" data-i="${i}" value="${ocEsc(r.owner || '')}" placeholder="Wie volgt dit op?" autocomplete="off"></div>
+                                <div><label for="rs-${i}">Status</label><select id="rs-${i}" data-f="status" data-i="${i}">
+                                    <option value="">Nog niet gekozen</option>${Object.entries(STATUS).map(([k, v]) => `<option value="${k}"${r.status === k ? ' selected' : ''}>${v}</option>`).join('')}
+                                </select></div>
+                            </div>
+                            <button type="button" class="done-btn" data-open="${i}">Klaar</button>
+                        </div>
                     </div>
                 `;
             }).join('');
         }
+
+        function showErr(on) {
+            const input = document.getElementById('riskName'), err = document.getElementById('riskNameErr');
+            err.hidden = !on;
+            if (on) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid');
+        }
+        function clearErr() { showErr(false); }
 
         function addRisk() {
             const nameInput = document.getElementById('riskName');
@@ -1637,26 +1813,28 @@ const ocExport = (() => {
             const name = nameInput.value.trim();
 
             if (!name) {
+                showErr(true);
                 nameInput.focus();
-                nameInput.style.borderColor = '#f59e0b';
-                setTimeout(() => nameInput.style.borderColor = '', 1000);
                 return;
             }
+            showErr(false);
 
             const probability = parseInt(document.getElementById('probabilitySlider').value);
             const impact = parseInt(document.getElementById('impactSlider').value);
+            const r = cleanRisk({ name, probability, impact, measure: document.getElementById('riskMeasure').value.trim(), owner: document.getElementById('riskOwner').value.trim() });
 
-            risks.push({ name, probability, impact });
+            risks.push(r);
 
             // Visual feedback
             addBtn.textContent = '✓ Toegevoegd';
-            addBtn.style.background = '#10b981';
             setTimeout(() => {
-                addBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Toevoegen`;
-                addBtn.style.background = '';
+                addBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Toevoegen`;
             }, 600);
+            ocToast(`${r.name} toegevoegd`);
 
             nameInput.value = '';
+            document.getElementById('riskMeasure').value = '';
+            document.getElementById('riskOwner').value = '';
             document.getElementById('probabilitySlider').value = 5;
             document.getElementById('impactSlider').value = 5;
             document.getElementById('probabilityValue').textContent = '5';
@@ -1672,6 +1850,7 @@ const ocExport = (() => {
             const removed = risks[index];
             if (!removed) return;
             risks.splice(index, 1);
+            openIdx = null;
             renderMatrix();
             renderRiskList();
             ocToast(`${removed.name} verwijderd`, () => {
@@ -1684,6 +1863,7 @@ const ocExport = (() => {
         /* Alles wissen, met Ongedaan zolang er intussen niets veranderde */
         const stateSig = () => JSON.stringify([document.getElementById('projectName').value, risks]);
         async function wipeAll() {
+            if (state.projects.length > 1) { deleteProject(); return; }
             if (!(await ocConfirmWipe())) return;
             const snap = ocStoreSnapshot();
             reset();
@@ -1691,7 +1871,6 @@ const ocExport = (() => {
             ocToast('Alles gewist', () => {
                 if (stateSig() !== sig) { ocToast('Ongedaan maken kan niet meer: er is intussen iets veranderd'); return; }
                 ocStoreRestore(snap);
-                risks = [];
                 loadState();
                 renderMatrix();
                 renderRiskList();
@@ -1700,10 +1879,12 @@ const ocExport = (() => {
         }
 
         function reset() {
-            risks = [];
-            isVoorbeeld = false;
-            document.getElementById('projectName').value = ocProject('');
+            const p = blankProject();
+            state = { projects: [p], current: p.id };
+            syncFromState();
+            document.getElementById('projectName').value = p.name;
             document.getElementById('riskName').value = '';
+            clearErr();
             document.getElementById('probabilitySlider').value = 5;
             document.getElementById('impactSlider').value = 5;
             document.getElementById('probabilityValue').textContent = '5';
@@ -1722,11 +1903,11 @@ const ocExport = (() => {
         function downloadCsv() {
             const name = document.getElementById('projectName').value || 'Risicomatrix';
 
-            let csv = 'Risico,Kans,Impact,Score,Niveau,Actie\n';
-            risks.forEach(r => {
+            let csv = 'Risico,Kans,Impact,Score,Niveau,Actie,Maatregel,Eigenaar,Status\n';
+            ranked().forEach(r => {
                 const level = getRiskLevel(r.probability, r.impact);
                 const score = r.probability * r.impact;
-                csv += `${csvCell(r.name)},${r.probability},${r.impact},${score},"${level.name}","${level.action}"\n`;
+                csv += `${csvCell(r.name)},${r.probability},${r.impact},${score},"${level.name}","${level.action}",${csvCell(r.measure || '')},${csvCell(r.owner || '')},${csvCell(STATUS[r.status] || '')}\n`;
             });
 
             const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -1742,7 +1923,30 @@ const ocExport = (() => {
             loadState();
             renderMatrix();
             renderRiskList();
-            document.getElementById('projectName').addEventListener('input', saveState);
+            document.getElementById('projectName').addEventListener('input', () => { saveState(); renderTabs(); });
+            document.getElementById('projectName').addEventListener('blur', () => { const el = document.getElementById('projectName'); if (!el.value.trim()) { el.value = 'Naamloos'; saveState(); renderTabs(); } });
+            document.getElementById('projTabs').addEventListener('click', e => {
+                if (e.target.closest('#newProj')) { newProject(); return; }
+                const t = e.target.closest('[data-proj]'); if (t && t.dataset.proj !== state.current) switchProject(t.dataset.proj);
+            });
+            document.getElementById('riskName').addEventListener('input', () => { if (document.getElementById('riskName').value.trim()) clearErr(); });
+            const list = document.getElementById('riskList');
+            list.addEventListener('input', e => {
+                const f = e.target.dataset && e.target.dataset.f; if (!f) return;
+                const r = risks[+e.target.dataset.i]; if (!r) return;
+                const v = e.target.value.trim();
+                if (v) r[f] = f === 'status' ? v : v.slice(0, f === 'owner' ? 80 : 500); else delete r[f];
+                saveState();
+            });
+            list.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.f === 'status') { const i = +e.target.dataset.i; renderRiskList(); const s = document.getElementById('rs-' + i); s && s.focus(); } });
+            list.addEventListener('click', e => {
+                const o = e.target.closest('[data-open]'); if (!o) return;
+                const i = +o.dataset.open, wasDone = o.classList.contains('done-btn');
+                openIdx = openIdx === i ? null : i;
+                renderRiskList();
+                const target = openIdx === i ? document.getElementById('rm-' + i) : document.querySelector(`.risk-open[data-open="${i}"]`);
+                target && target.focus();
+            });
 
             document.getElementById('probabilitySlider').addEventListener('input', e => {
                 document.getElementById('probabilityValue').textContent = e.target.value;
@@ -1755,9 +1959,9 @@ const ocExport = (() => {
             document.getElementById('addRisk').addEventListener('click', addRisk);
             document.getElementById('riskList').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (b) deleteRisk(+b.dataset.del); });
 
-            document.getElementById('riskName').addEventListener('keypress', e => {
-                if (e.key === 'Enter') addRisk();
-            });
+            ['riskName', 'riskMeasure', 'riskOwner'].forEach(id => document.getElementById(id).addEventListener('keydown', e => {
+                if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); addRisk(); }
+            }));
 
             document.getElementById('ocRestart').addEventListener('click', wipeAll);
             document.getElementById('downloadPng').addEventListener('click', downloadPng);
@@ -1767,15 +1971,19 @@ const ocExport = (() => {
             document.addEventListener('click', e => {
                 const b = e.target.closest('[data-vb]'); if (!b) return;
                 if (b.dataset.vb === 'start') {
-                    risks = VOORBEELD.items.map(x => ({ ...x }));
-                    isVoorbeeld = true;
+                    // een leeg project wordt het voorbeeld; anders komt het voorbeeld in een eigen tabblad
+                    let p = cur();
+                    if (p.items.length) { saveState(); p = blankProject(); state.projects.push(p); state.current = p.id; }
+                    p.items = VOORBEELD.items.map(x => ({ ...x })); p.voorbeeld = true; p.name = VOORBEELD.project;
+                    syncFromState();
                     document.getElementById('projectName').value = VOORBEELD.project;
                     renderMatrix(); renderRiskList();
                     ocToast('Voorbeeld geladen');
                 } else if (b.dataset.vb === 'wis') {
+                    if (state.projects.length > 1) { deleteProject(); return; }
                     const snap = ocStoreSnapshot();
                     reset();
-                    ocToast('Voorbeeld gewist', () => { ocStoreRestore(snap); risks = []; loadState(); renderMatrix(); renderRiskList(); });
+                    ocToast('Voorbeeld gewist', () => { ocStoreRestore(snap); loadState(); renderMatrix(); renderRiskList(); });
                 } else if (b.dataset.vb === 'eigen') {
                     isVoorbeeld = false; saveState(); renderRiskList();
                     ocToast('Het voorbeeld is nu van jou');
@@ -1806,13 +2014,13 @@ const ocExport = (() => {
             document.getElementById('probabilityLabel').addEventListener('mouseleave', hideTooltip);
 
             document.getElementById('impactLabel').addEventListener('mouseenter', e => {
-                showTooltip(e.target, 'Impact: Wat is de ernst van de gevolgen? 1 = verwaarloosbaar effect, 10 = catastrofale gevolgen voor het project.');
+                showTooltip(e.target, 'Impact: Wat is de ernst van de gevolgen? 1 = heel klein effect, 10 = heel grote gevolgen voor het project.');
             });
             document.getElementById('impactLabel').addEventListener('mouseleave', hideTooltip);
 
             // Uitleg ook bij toetsenbordfocus en tikken (niet enkel bij muis)
             [['probabilityLabel', 'Kans: Hoe waarschijnlijk is het dat dit risico zich voordoet? 1 = zeer onwaarschijnlijk, 10 = zeer waarschijnlijk.'],
-             ['impactLabel', 'Impact: Wat is de ernst van de gevolgen? 1 = verwaarloosbaar effect, 10 = catastrofale gevolgen voor het project.']].forEach(([id, text]) => {
+             ['impactLabel', 'Impact: Wat is de ernst van de gevolgen? 1 = heel klein effect, 10 = heel grote gevolgen voor het project.']].forEach(([id, text]) => {
                 const el = document.getElementById(id);
                 el.addEventListener('focus', () => showTooltip(el, text));
                 el.addEventListener('blur', hideTooltip);

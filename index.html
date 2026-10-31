@@ -11,7 +11,7 @@
     <meta name="oc:pdca" content="plan, check">
     <meta name="oc:kort" content="Wat kan misgaan, en hoe erg zou dat zijn?">
     <meta name="oc:volgorde" content="40">
-    <meta name="oc:opslag" content="risico.v1, oc.share.risico">
+    <meta name="oc:opslag" content="risico.v1">
 <link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="preload" href="/fonts/dm-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/dm-sans-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -1018,7 +1018,19 @@ html:has(.ocs-back, .ocw-back, .gal-back, .oc-dialog-backdrop) { overflow:hidden
 body { min-height:100dvh; }
 .matrix-wrapper { max-width:max(320px, calc(100dvh - 260px)); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration:0.01ms !important; animation-duration:0.01ms !important; } }
-    </style>
+    
+        /* Bewaar als bestand / Open bestand */
+        .ocb { display:flex; flex-direction:column; border:1px solid #e2e8f0; border-radius:12px; background:#fff; overflow:hidden; }
+        .ocb-item { display:flex; align-items:center; gap:0.75rem; width:100%; min-height:48px; margin:0; padding:0.625rem 0.875rem; background:none; border:0; border-radius:0; text-align:left; font:inherit; color:#1e293b; cursor:pointer; transition:background 0.15s ease; }
+        .ocb-item + .ocb-item { border-top:1px solid #e2e8f0; }
+        .ocb-item:hover { background:#ecfdf5; }
+        .ocb-item:focus-visible { outline:2px solid #10b981; outline-offset:-2px; }
+        .ocb-item svg { width:20px; height:20px; flex:none; color:#047857; }
+        .ocb-txt { display:flex; flex-direction:column; min-width:0; }
+        .ocb-t { font-size:0.9375rem; font-weight:600; line-height:1.3; }
+        .ocb-s { font-size:0.8125rem; font-weight:400; color:#64748b; line-height:1.35; margin-top:1px; }
+        .ocb-note { margin:0.5rem 0 0; font-size:0.75rem; line-height:1.4; color:#64748b; text-align:center; }
+</style>
 </head>
 <body>
     <header class="header oc-head">
@@ -1149,6 +1161,7 @@ body { min-height:100dvh; }
                 </div>
 
                 <div class="actions-section">
+                    <div class="ocb"><button type="button" class="ocb-item" data-ocb="bewaar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M12 11v7M9 15l3 3 3-3"/></svg><span class="ocb-txt"><span class="ocb-t">Bewaar als bestand</span><span class="ocb-s">Om later verder te werken, of door te geven</span></span></button><button type="button" class="ocb-item" data-ocb="open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 17v-6M9 14l3-3 3 3"/></svg><span class="ocb-txt"><span class="ocb-t">Open bestand</span></span></button></div>
                     <div class="download-row">
                         <button class="btn btn-secondary" id="downloadPng" type="button" disabled>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1167,6 +1180,7 @@ body { min-height:100dvh; }
                             CSV
                         </button>
                     </div>
+                    <p class="ocb-note">Een afbeelding, PDF of CSV kan je niet terug openen.</p>
                 </div>
             </div>
         </div>
@@ -1178,6 +1192,7 @@ body { min-height:100dvh; }
     </footer>
 
     <div class="tooltip" id="tooltip" role="tooltip"></div>
+    <input type="file" id="ocbInput" accept=".json,application/json" hidden aria-label="Bestand kiezen om te openen">
 
     <script>
 /* Het actieve project uit de app (oc.project): nieuwe projecten, analyses en lijsten krijgen die naam. */
@@ -1648,7 +1663,7 @@ const ocExport = (() => {
         })();
         /* Kopie van alle sleutels uit oc:opslag, om "Alles wissen" ongedaan te kunnen maken */
         function ocStoreSnapshot() {
-            const spec = ((document.querySelector('meta[name="oc:opslag"]') || {}).content || '').split(',').map(x => x.trim()).filter(Boolean);
+            const spec = ((document.querySelector('meta[name="oc:opslag"]') || {}).content || '').split(',').map(x => x.trim()).filter(Boolean).concat('oc.share.risico');
             const out = {};
             try {
                 for (let i = 0; i < localStorage.length; i++) {
@@ -1663,13 +1678,15 @@ const ocExport = (() => {
         }
 
         /* Bevestiging in de pagina, in plaats van confirm() */
-        function ocConfirmWipe() {
+        function ocConfirmWipe(msg, okText) {
             return new Promise(resolve => {
                 const back = document.createElement('div');
                 back.className = 'ocw-back';
-                back.innerHTML = '<div class="ocw" role="alertdialog" aria-modal="true"><p>Alles wissen? Je kan dit nog ongedaan maken tot je iets anders doet.</p>' +
+                back.innerHTML = '<div class="ocw" role="alertdialog" aria-modal="true"><p></p>' +
                     '<div class="ocw-actions"><button type="button" class="ocw-btn ocw-cancel">Annuleer</button>' +
-                    '<button type="button" class="ocw-btn ocw-ok">Wis alles</button></div></div>';
+                    '<button type="button" class="ocw-btn ocw-ok"></button></div></div>';
+                back.querySelector('.ocw p').textContent = msg || 'Alles wissen? Je kan dit nog ongedaan maken tot je iets anders doet.';
+                back.querySelector('.ocw-ok').textContent = okText || 'Wis alles';
                 const prev = document.activeElement;
                 document.body.appendChild(back);
                 requestAnimationFrame(() => back.classList.add('open'));
@@ -2072,6 +2089,104 @@ const ocExport = (() => {
   const SEL = '#downloadPng, #downloadPdf, [data-dl]';
   ['pointerdown', 'focusin', 'mouseover'].forEach(t => document.addEventListener(t, e => { if (!warm && e.target.closest && e.target.closest(SEL)) go(); }, { passive:true, capture:true }));
 })();
+</script>
+<script>
+/* oc-bestand: je werk in deze tool bewaren als bestand en later (of op een ander toestel) weer openen.
+   Formaat = dat van de reservekopie in de app: { app:'Onder Constructie', version:1, created, tool, data:{ sleutel: tekst } }.
+   Een reservekopie uit de app kan je hier ook openen: de tool neemt er alleen zijn eigen deel uit. */
+window.ocBestand = (function () {
+  function patronen() {
+    var m = document.querySelector('meta[name="oc:opslag"]');
+    return m ? m.content.split(',').map(function (s) { return s.trim(); }).filter(Boolean) : [];
+  }
+  function past(k, p) { return p.slice(-1) === '*' ? k.indexOf(p.slice(0, -1)) === 0 : k === p; }
+  function eigen(k) { return patronen().some(function (p) { return past(k, p); }); }
+  function sleutels() {
+    var uit = [];
+    try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && eigen(k)) uit.push(k); } } catch (e) {}
+    return uit;
+  }
+  function naam() {
+    var m = document.querySelector('meta[name="oc:titel"]') || document.querySelector('meta[name="application-name"]');
+    return (m && m.content) || (document.title.split(/\s[–-]\s/)[0] || 'tool').trim();
+  }
+  function slug(s) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+  /* bewaar(): downloadt het bestand. Geeft het aantal bewaarde sleutels terug (0 = niets om te bewaren). */
+  function bewaar(extraNaam) {
+    var keys = sleutels(); if (!keys.length) return 0;
+    var data = {}; keys.forEach(function (k) { try { data[k] = localStorage.getItem(k); } catch (e) {} });
+    var id = location.pathname.replace(/\/index\.html$/, '').split('/').filter(Boolean).pop() || 'tool';
+    var blob = new Blob([JSON.stringify({ app: 'Onder Constructie', version: 1, created: new Date().toISOString(), tool: id, data: data }, null, 1)], { type: 'application/json' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    var stuk = slug(naam()) + (extraNaam ? '-' + slug(extraNaam) : '');
+    a.download = stuk + '-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    return keys.length;
+  }
+  /* lees(file): Promise met { data: {sleutel: tekst} } van alleen de eigen sleutels.
+     Fout 'vorm' = geen bestand van Onder Constructie; fout 'leeg' = niets van deze tool in het bestand. */
+  function lees(file) {
+    return file.text().then(function (t) {
+      var d; try { d = JSON.parse(t); } catch (e) { throw new Error('vorm'); }
+      if (!d || d.app !== 'Onder Constructie' || typeof d.data !== 'object' || !d.data) throw new Error('vorm');
+      var uit = {}, n = 0;
+      Object.keys(d.data).forEach(function (k) { if (eigen(k) && typeof d.data[k] === 'string') { uit[k] = d.data[k]; n++; } });
+      if (!n) throw new Error('leeg');
+      return { data: uit, aantal: n, created: d.created || null };
+    });
+  }
+  /* zetTerug(gelezen): vervangt het huidige werk van deze tool door wat in het bestand staat, en laat andere tabbladen herladen. */
+  function zetTerug(g) {
+    sleutels().forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+    Object.keys(g.data).forEach(function (k) { try { localStorage.setItem(k, g.data[k]); } catch (e) {} });
+  }
+  function melding(err) {
+    return err && err.message === 'leeg' ? 'In dit bestand staat niets van ' + naam() + '.'
+      : 'Dit bestand kan ik niet openen. Kies een bestand dat je met "Bewaar als bestand" of als reservekopie maakte.';
+  }
+  return { bewaar: bewaar, lees: lees, zetTerug: zetTerug, melding: melding, sleutels: sleutels, naam: naam };
+})();
+
+/* oc-bestand-knoppen: koppelt de knoppen [data-ocb] en #ocbInput aan ocBestand.
+   cfg: heeftWerk() · bevestig(tekst) → Promise<bool> · toast(tekst, fout) · flush()? · stop()? · sluit()? · extraNaam()?
+        oud(json, file)? → true als het een bestand in het oude formaat van deze tool is (dan opent de oude code het). */
+function ocBestandKnoppen(cfg) {
+  var input = document.getElementById('ocbInput');
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-ocb]'); if (!b) return;
+    if (cfg.sluit) cfg.sluit();
+    if (b.dataset.ocb === 'open') { input.value = ''; input.click(); return; }
+    if (cfg.flush) cfg.flush();
+    var n = cfg.heeftWerk() ? ocBestand.bewaar(cfg.extraNaam ? cfg.extraNaam() : '') : 0;
+    cfg.toast(n ? 'Bewaard als bestand. Met "Open bestand" werk je later verder.' : 'Er is nog niets om te bewaren.', !n);
+  });
+  input.addEventListener('change', async function () {
+    var file = input.files && input.files[0]; input.value = ''; if (!file) return;
+    var g;
+    try { g = await ocBestand.lees(file); }
+    catch (err) {
+      if (err && err.message === 'vorm' && cfg.oud) {
+        var d = null; try { d = JSON.parse(await file.text()); } catch (e2) {}
+        if (d && cfg.oud(d, file)) return;
+      }
+      cfg.toast(ocBestand.melding(err), true); return;
+    }
+    if (cfg.flush) cfg.flush();
+    if (cfg.heeftWerk() && !(await cfg.bevestig('Dit vervangt wat nu in ' + ocBestand.naam() + ' staat. Doorgaan?'))) return;
+    if (cfg.stop) cfg.stop();
+    ocBestand.zetTerug(g);
+    // tot het herladen niets meer wegschrijven: een uitgestelde bewaring mag het geopende werk niet overschrijven
+    try { Storage.prototype.setItem = function () {}; Storage.prototype.removeItem = function () {}; } catch (e3) {}
+    location.reload();
+  });
+}
+ocBestandKnoppen({
+  heeftWerk: function () { return state.projects.some(function (p) { return p.items.length; }); },
+  flush: function () { saveState(); },
+  extraNaam: function () { return state.projects.length === 1 ? state.projects[0].name : ''; },
+  bevestig: function (t) { return ocConfirmWipe(t, 'Vervang'); },
+  toast: function (t) { ocToast(t); }
+});
 </script>
 <script>
 /* oc-sync: reageert op "Wissen" in de app (ook in andere tabbladen) en geeft Esc door aan de app */

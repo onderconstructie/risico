@@ -457,8 +457,8 @@
             position: absolute;
             inset: 0;
             display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            grid-template-rows: repeat(10, 1fr);
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
         }
 
         .risk-cell {
@@ -916,7 +916,7 @@
         .restart-row { display: flex; justify-content: center; margin-top: 1.25rem; }
         .restart-btn { min-height: 44px; padding: 0.5rem 1rem; font: inherit; font-size: 0.875rem; font-weight: 500; color: #64748b; background: none; border: 0; border-radius: 10px; cursor: pointer; text-decoration: underline; text-decoration-color: #cbd5e1; text-underline-offset: 3px; }
         .restart-btn:hover { color: #b91c1c; background: #fef2f2; text-decoration-color: currentColor; }
-        /* ===== Panel oktober 2026: matrix 10x10, genummerde stippen, aslabels als tekst ===== */
+        /* ===== Panel oktober 2026: genummerde stippen, aslabels als tekst (matrix nu 5 x 5) ===== */
         .matrix-wrapper { padding: 0.25rem 0.25rem 2rem 2rem; }
         @media (max-width: 768px) { .matrix-wrapper { padding: 0.25rem 0.25rem 2rem 2rem; } }
         .risk-cell { border: 1px solid rgba(255,255,255,0.6); }
@@ -1007,6 +1007,28 @@
             .risk-item { padding-right: 0.5rem; }
         }
         [hidden] { display: none !important; }
+        /* ===== Schaal 1 tot 5: cijfers onder de schuif, uitleg per niveau, regel bij de legende ===== */
+        .slider-group input[type="range"] { margin: 0; display: block; }
+        .slider-ticks { display: flex; justify-content: space-between; margin-top: -0.375rem; font-size: 0.6875rem; font-weight: 600; color: var(--slate-500); font-variant-numeric: tabular-nums; }
+        .slider-ticks span { width: 24px; text-align: center; }
+        .slider-desc { margin: 0.25rem 0 0; font-size: 0.8125rem; line-height: 1.4; color: #475569; min-height: 2.3em; }
+        .slider-desc b { color: var(--slate-800); font-weight: 600; }
+        .slider-value { min-width: 0; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .legend-range { margin-left: auto; font-weight: 500; font-variant-numeric: tabular-nums; opacity: 0.85; }
+        .legend-rule { margin: 0.625rem 0 0; font-size: 0.75rem; line-height: 1.45; color: #475569; }
+        .legend-grid { grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); }
+        .legend-range { white-space: nowrap; }
+        /* Kwadrantnamen net buiten het raster: zo bedekt geen stip ze, ook niet in de hoekcellen */
+        .matrix-wrapper { padding-top: 1.5rem; }
+        .axis-label-y { top: 1.5rem; }
+        .quadrant-label { opacity: 0.9; white-space: nowrap; line-height: 1; }
+        .quadrant-label.q-tl, .quadrant-label.q-tr { top: auto; bottom: calc(100% + 6px); }
+        .quadrant-label.q-bl, .quadrant-label.q-br { bottom: auto; top: calc(100% + 8px); }
+        .quadrant-label.q-tl, .quadrant-label.q-bl { left: 0; }
+        .quadrant-label.q-tr, .quadrant-label.q-br { right: 0; }
+        .grid-line { background: none; }
+        .grid-line.horizontal { height: 0; border-top: 2px dashed rgba(100,116,139,0.45); transform: translateY(-1px); }
+        .grid-line.vertical { width: 0; border-left: 2px dashed rgba(100,116,139,0.45); transform: translateX(-1px); }
 
 /* ---------- Soepel op gsm (oktober 2026): tikken, typen, schuiven ---------- */
 html { -webkit-text-size-adjust:100%; text-size-adjust:100%; }
@@ -1072,25 +1094,21 @@ body { min-height:100dvh; }
                     <div class="slider-group">
                         <div class="slider-header">
                             <label class="slider-label" id="probabilityLabel" for="probabilitySlider">Kans</label>
-                            <span class="slider-value" id="probabilityValue">5</span>
+                            <span class="slider-value" id="probabilityValue">3</span>
                         </div>
-                        <input type="range" id="probabilitySlider" min="1" max="10" value="5">
-                        <div class="slider-hints">
-                            <span>zeer onwaarschijnlijk</span>
-                            <span>zeer waarschijnlijk</span>
-                        </div>
+                        <input type="range" id="probabilitySlider" min="1" max="5" step="1" value="3" aria-describedby="probabilityDesc">
+                        <div class="slider-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+                        <p class="slider-desc" id="probabilityDesc"></p>
                     </div>
                     
                     <div class="slider-group">
                         <div class="slider-header">
                             <label class="slider-label" id="impactLabel" for="impactSlider">Impact</label>
-                            <span class="slider-value" id="impactValue">5</span>
+                            <span class="slider-value" id="impactValue">3</span>
                         </div>
-                        <input type="range" id="impactSlider" min="1" max="10" value="5">
-                        <div class="slider-hints">
-                            <span>heel klein</span>
-                            <span>heel groot</span>
-                        </div>
+                        <input type="range" id="impactSlider" min="1" max="5" step="1" value="3" aria-describedby="impactDesc">
+                        <div class="slider-ticks" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+                        <p class="slider-desc" id="impactDesc"></p>
                     </div>
                     <p class="level-preview" id="levelPreview" aria-live="polite"></p>
                     
@@ -1115,11 +1133,12 @@ body { min-height:100dvh; }
 
                 <div class="legend-section">
                     <div class="legend-grid">
-                        <div class="legend-item q-critical"><span class="legend-dot"></span>Kritiek</div>
-                        <div class="legend-item q-high"><span class="legend-dot"></span>Hoog</div>
-                        <div class="legend-item q-medium"><span class="legend-dot"></span>Gemiddeld</div>
-                        <div class="legend-item q-low"><span class="legend-dot"></span>Laag</div>
+                        <div class="legend-item q-critical"><span class="legend-dot"></span>Kritiek<span class="legend-range">15 tot 25</span></div>
+                        <div class="legend-item q-high"><span class="legend-dot"></span>Hoog<span class="legend-range">10 tot 14</span></div>
+                        <div class="legend-item q-medium"><span class="legend-dot"></span>Gemiddeld<span class="legend-range">5 tot 9</span></div>
+                        <div class="legend-item q-low"><span class="legend-dot"></span>Laag<span class="legend-range">1 tot 4</span></div>
                     </div>
+                    <p class="legend-rule">De score is kans maal impact. Beide gaan van 1 tot 5, dus de score gaat van 1 tot 25.</p>
                 </div>
             </div>
 
@@ -1524,24 +1543,26 @@ const ocExport = (() => {
             ];
             return groups.map(g => ocGroupHTML(g.color, g.text, g.name, g.sub,
                 ranked().filter(r => getRiskLevel(r.probability, r.impact).name === g.name)
-                     .map(r => ({ name: `${r.num}. ${r.name}`, meta: `kans ${r.probability} · impact ${r.impact} · score ${r.probability * r.impact}`,
+                     .map(r => ({ name: `${r.num}. ${r.name}`, meta: `kans ${r.probability}/5 · impact ${r.impact}/5 · score ${r.probability * r.impact}`,
                          extra: [r.measure ? `Maatregel: ${r.measure}` : '', r.owner ? `Eigenaar: ${r.owner}` : '', STATUS[r.status] || ''].filter(Boolean).join(' · ') })))).join('');
         }
         let risks = [];
         let isVoorbeeld = false;   // voorbeelddata: voorbeeld:true in de opslag, niet gedeeld met andere tools
         const VOORBEELD = { project: 'Digitaal premieloket renovatie', items: [
-            { name: 'Koppeling met het registratiesysteem raakt niet op tijd klaar', probability: 7, impact: 8, measure: 'Wekelijks overleg met de leverancier, en een papieren noodformulier klaarhouden', owner: 'Dienst informatica', status: 'bezig' },
-            { name: 'Piek in aanvragen na de campagne in maart', probability: 8, impact: 5, measure: 'Extra loketuren inplannen in de weken na de campagne', owner: 'Loketverantwoordelijke', status: 'open' },
-            { name: 'Advies informatieveiligheid komt laat', probability: 5, impact: 7, measure: 'Het advies nu al aanvragen, met een vaste datum', owner: 'Projectleider', status: 'klaar' },
-            { name: 'Loketmedewerkers kennen het nieuwe formulier nog niet', probability: 6, impact: 4, measure: 'Korte opleiding voor de start', owner: 'Loketverantwoordelijke' },
-            { name: 'Regels voor de premie wijzigen tijdens het project', probability: 3, impact: 8 },
-            { name: 'Budget voor de testfase is te krap', probability: 4, impact: 3 },
-            { name: 'Tijdelijke uitval van de website', probability: 2, impact: 4 }
+            { name: 'Koppeling met het registratiesysteem raakt niet op tijd klaar', probability: 4, impact: 4, measure: 'Wekelijks overleg met de leverancier, en een papieren noodformulier klaarhouden', owner: 'Dienst informatica', status: 'bezig' },
+            { name: 'Piek in aanvragen na de campagne in maart', probability: 4, impact: 3, measure: 'Extra loketuren inplannen in de weken na de campagne', owner: 'Loketverantwoordelijke', status: 'open' },
+            { name: 'Advies informatieveiligheid komt laat', probability: 3, impact: 4, measure: 'Het advies nu al aanvragen, met een vaste datum', owner: 'Projectleider', status: 'klaar' },
+            { name: 'Loketmedewerkers kennen het nieuwe formulier nog niet', probability: 3, impact: 2, measure: 'Korte opleiding voor de start', owner: 'Loketverantwoordelijke' },
+            { name: 'Regels voor de premie wijzigen tijdens het project', probability: 2, impact: 5 },
+            { name: 'Budget voor de testfase is te krap', probability: 2, impact: 3 },
+            { name: 'Tijdelijke uitval van de website', probability: 1, impact: 2 }
         ] };
 
         /* ---------- Opslag en delen: één lijst risico's per project ----------
-           risico.v1 = { projects:[{ id, name, items:[{ name, probability, impact, measure?, owner?, status? }], voorbeeld? }], current }
-           Oud formaat { project, items, voorbeeld? } wordt bij het laden het eerste project. */
+           risico.v1 = { schaal:5, projects:[{ id, name, items:[{ name, probability, impact, measure?, owner?, status? }], voorbeeld? }], current }
+           Oud formaat { project, items, voorbeeld? } wordt bij het laden het eerste project.
+           Schaal: kans en impact gaan van 1 tot 5. Gegevens zonder schaal:5 komen van de oude schaal 1 tot 10
+           (opslag, een geopend bestand of een reservekopie). Die zetten we één keer om: nieuwe waarde = afgerond naar boven (oud / 2). */
         const STORE_KEY = 'risico.v1';
         const STATUS = { open: 'Nog te doen', bezig: 'Maatregel loopt', klaar: 'Onder controle' };
         const uid = () => Math.random().toString(36).slice(2, 10);
@@ -1549,31 +1570,53 @@ const ocExport = (() => {
         let loaded = false;   // pas bewaren nadat de opgeslagen gegevens ingelezen zijn
         let openIdx = null;   // risico waarvan de details open staan (index in risks)
         const cur = () => state.projects.find(p => p.id === state.current) || state.projects[0];
-        const clamp10 = v => Math.max(1, Math.min(10, Math.round(+v) || 1));
+        const SCHAAL = 5;
+        const clamp5 = v => Math.max(1, Math.min(SCHAAL, Math.round(+v) || 1));
+        const from10 = v => clamp5(Math.ceil(Math.max(1, Math.min(10, Math.round(+v) || 1)) / 2));
+        // Eigen omschrijving per niveau (getoond bij het kiezen, in de lijst en in de export)
+        const KANS = [null,
+            { t: 'Bijna nooit', s: 'Het zou ons echt verbazen.' },
+            { t: 'Eerder niet', s: 'Het kan, maar we verwachten het niet.' },
+            { t: 'Misschien', s: 'Het kan evengoed wel als niet gebeuren.' },
+            { t: 'Waarschijnlijk', s: 'We verwachten dat het gebeurt.' },
+            { t: 'Bijna zeker', s: 'Het gebeurt, tenzij we iets doen.' }];
+        const IMPACT = [null,
+            { t: 'Heel klein', s: 'Bijna niemand merkt er iets van.' },
+            { t: 'Klein', s: 'Wat hinder, maar snel opgelost.' },
+            { t: 'Merkbaar', s: 'Het geeft vertraging of extra werk.' },
+            { t: 'Groot', s: 'De planning, het budget of de kwaliteit komt in gevaar.' },
+            { t: 'Heel groot', s: 'Het project loopt vast of mislukt.' }];
+        let omgezet = 0;   // aantal eigen risico's dat bij het laden van 1-10 naar 1-5 ging (voor één melding)
         const str = (v, n) => typeof v === 'string' ? v.slice(0, n) : '';
-        function cleanRisk(x) {
-            const r = { name: String(x.name).slice(0, 300), probability: clamp10(x.probability), impact: clamp10(x.impact) };
+        function cleanRisk(x, oud) {
+            const c = oud ? from10 : clamp5;
+            const r = { name: String(x.name).slice(0, 300), probability: c(x.probability), impact: c(x.impact) };
             const m = str(x.measure, 500), o = str(x.owner, 80);
             if (m) r.measure = m;
             if (o) r.owner = o;
             if (STATUS[x.status]) r.status = x.status;
             return r;
         }
-        function cleanItems(arr) { return (Array.isArray(arr) ? arr : []).filter(x => x && typeof x.name === 'string' && x.name.trim()).map(cleanRisk); }
+        function cleanItems(arr, oud) { return (Array.isArray(arr) ? arr : []).filter(x => x && typeof x.name === 'string' && x.name.trim()).map(x => cleanRisk(x, oud)); }
         function validState(d) {
+            omgezet = 0;
+            const oud = !!d && typeof d === 'object' && d.schaal !== SCHAAL;   // geen markering = oude schaal 1 tot 10
+            const tel = p => { if (oud && !p.voorbeeld) omgezet += p.items.length; return p; };
             if (d && Array.isArray(d.projects)) {
                 const projects = d.projects.filter(p => p && typeof p === 'object').map(p => {
-                    const o = { id: typeof p.id === 'string' && p.id ? p.id : uid(), name: str(p.name, 80), items: cleanItems(p.items) };
+                    const o = { id: typeof p.id === 'string' && p.id ? p.id : uid(), name: str(p.name, 80), items: cleanItems(p.items, oud) };
                     if (p.voorbeeld === true) o.voorbeeld = true;
-                    return o;
+                    return tel(o);
                 });
-                if (projects.length) return { projects, current: projects.some(p => p.id === d.current) ? d.current : projects[0].id };
+                if (projects.length) return { schaal: SCHAAL, projects, current: projects.some(p => p.id === d.current) ? d.current : projects[0].id };
             }
             if (d && Array.isArray(d.items)) {   // oud formaat: één lijst
-                const p = { id: uid(), name: str(d.project, 80).trim() || ocProject('Mijn project'), items: cleanItems(d.items) };
+                const p = { id: uid(), name: str(d.project, 80).trim() || ocProject('Mijn project'), items: cleanItems(d.items, oud) };
                 if (d.voorbeeld === true) p.voorbeeld = true;
-                return { projects: [p], current: p.id };
+                tel(p);
+                return { schaal: SCHAAL, projects: [p], current: p.id };
             }
+            omgezet = 0;
             return null;
         }
         function blankProject(name) { return { id: uid(), name: name || ocProject('Mijn project'), items: [] }; }
@@ -1587,7 +1630,7 @@ const ocExport = (() => {
             const el = document.getElementById('projectName');
             if (document.activeElement !== el) el.value = p.name;
         }
-        const riskNote = r => [`kans ${r.probability} · impact ${r.impact}`, r.measure ? `maatregel: ${r.measure}` : '', STATUS[r.status] || ''].filter(Boolean).join(' · ');
+        const riskNote = r => [`kans ${r.probability}/5 · impact ${r.impact}/5`, r.measure ? `maatregel: ${r.measure}` : '', STATUS[r.status] || ''].filter(Boolean).join(' · ');
         function saveState() {
             if (!loaded) return;
             const p = cur();
@@ -1607,12 +1650,14 @@ const ocExport = (() => {
         function loadState() {
             let d = null;
             try { d = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) {}
-            state = validState(d) || (() => { const p = blankProject(); return { projects: [p], current: p.id }; })();
+            state = validState(d) || (() => { const p = blankProject(); return { schaal: SCHAAL, projects: [p], current: p.id }; })();
             // open het actieve project uit de app, als het hier al bestaat
             const ap = ocProject('');
             if (ap) { const m = state.projects.find(x => x.name === ap); if (m) state.current = m.id; }
             syncFromState();
             loaded = true;
+            // de omgezette waarden meteen bewaren (met schaal:5), zodat dit maar één keer gebeurt; ook wat andere tools ophalen
+            if (d && typeof d === 'object' && d.schaal !== SCHAAL) saveState();
         }
         function renderTabs() {
             const el = document.getElementById('projTabs');
@@ -1663,7 +1708,7 @@ const ocExport = (() => {
                 t.classList.toggle('has-undo', !!undoFn);
                 t.classList.add('show');
                 clearTimeout(timer);
-                timer = setTimeout(() => { t.classList.remove('show'); undoFn = null; }, undoFn ? 6000 : 2600);
+                timer = setTimeout(() => { t.classList.remove('show'); undoFn = null; }, undoFn || msg.length > 70 ? 6000 : 2600);
             };
         })();
         /* Kopie van alle sleutels uit oc:opslag, om "Alles wissen" ongedaan te kunnen maken */
@@ -1708,19 +1753,23 @@ const ocExport = (() => {
         // Padding percentage to keep points away from edges
         const EDGE_PADDING = 8;
 
-        // Risk level based on score (probability * impact)
+        /* Niveau volgens de score = kans x impact (1 tot 25).
+           Laag 1-4 · Gemiddeld 5-9 · Hoog 10-14 · Kritiek 15-25.
+           Op het raster van 5 x 5: 8 cellen laag, 7 gemiddeld, 4 hoog, 6 kritiek.
+           Het midden (3 x 3 = 9) is gemiddeld. Beide hoeken met één uiterste (1 x 5 en 5 x 1) zijn gemiddeld.
+           Kritiek vraagt minstens 3 op de ene as en 5 op de andere, of 4 op beide. */
         function getRiskLevel(probability, impact) {
             const score = probability * impact;
-            if (score >= 50) return { name: 'Kritiek', class: 'critical', action: 'Direct aanpakken' };
-            if (score >= 25) return { name: 'Hoog', class: 'high', action: 'Maatregelen nemen' };
-            if (score >= 10) return { name: 'Gemiddeld', class: 'medium', action: 'Opvolgen' };
+            if (score >= 15) return { name: 'Kritiek', class: 'critical', action: 'Direct aanpakken' };
+            if (score >= 10) return { name: 'Hoog', class: 'high', action: 'Maatregelen nemen' };
+            if (score >= 5) return { name: 'Gemiddeld', class: 'medium', action: 'Opvolgen' };
             return { name: 'Laag', class: 'low', action: 'Aanvaarden' };
         }
 
-        // Raster van 10 x 10: elke cel is een combinatie kans x impact, gekleurd met dezelfde grenzen als de stippen.
-        // De lijnen door het midden vallen zo op de grens tussen 5 en 6.
+        // Raster van 5 x 5: elke cel is een combinatie kans x impact, gekleurd met dezelfde grenzen als de stippen.
+        // De stippellijnen lopen door het midden (waarde 3): links en onder ligt 1-2, rechts en boven 4-5.
         function getCellRiskLevel(col, row) {
-            return getRiskLevel(col + 1, 10 - row).class;   // col 0-9 = kans 1-10, row 0-9 = impact 10-1
+            return getRiskLevel(col + 1, SCHAAL - row).class;   // col 0-4 = kans 1-5, row 0-4 = impact 5-1
         }
 
         // Initialize the risk grid colors
@@ -1728,8 +1777,8 @@ const ocExport = (() => {
             const grid = document.getElementById('riskGrid');
             grid.innerHTML = '';
             
-            for (let row = 0; row < 10; row++) {
-                for (let col = 0; col < 10; col++) {
+            for (let row = 0; row < SCHAAL; row++) {
+                for (let col = 0; col < SCHAAL; col++) {
                     const cell = document.createElement('div');
                     cell.className = 'risk-cell';
                     cell.dataset.level = getCellRiskLevel(col, row);
@@ -1755,12 +1804,12 @@ const ocExport = (() => {
                 const first = group[0], level = getRiskLevel(first.probability, first.impact);
                 const point = document.createElement('div');
                 point.className = 'risk-point';
-                point.style.left = ((first.probability - 0.5) * 10) + '%';
-                point.style.top = ((10.5 - first.impact) * 10) + '%';
+                point.style.left = ((first.probability - 0.5) * (100 / SCHAAL)) + '%';
+                point.style.top = ((SCHAAL + 0.5 - first.impact) * (100 / SCHAAL)) + '%';
                 const dot = document.createElement('div');
                 dot.className = `point-dot q-${level.class}${group.length > 1 ? ' multi' : ''}`;
                 dot.textContent = group.length > 3 ? `${group[0].num}+${group.length - 1}` : group.map(r => r.num).join('·');
-                dot.title = group.map(r => `${r.num}. ${r.name}`).join('\n') + `\nKans ${first.probability} · impact ${first.impact} · score ${first.probability * first.impact} (${level.name})`;
+                dot.title = group.map(r => `${r.num}. ${r.name}`).join('\n') + `\nKans ${first.probability}/5 (${KANS[first.probability].t.toLowerCase()}) · impact ${first.impact}/5 (${IMPACT[first.impact].t.toLowerCase()}) · score ${first.probability * first.impact} (${level.name})`;
                 point.appendChild(dot);
                 container.appendChild(point);
             });
@@ -1818,7 +1867,7 @@ const ocExport = (() => {
                         <span class="risk-num q-${level.class}" aria-hidden="true">${r.num}</span>
                         <button type="button" class="risk-open" data-open="${i}" aria-expanded="${open}" aria-controls="re-${i}">
                             <span class="risk-name">${ocEsc(r.name)}</span>
-                            <span class="risk-meta">Kans ${r.probability} · Impact ${r.impact} · <span class="risk-score q-${level.class}">${score} ${level.name}</span></span>
+                            <span class="risk-meta">Kans ${r.probability}/5 · Impact ${r.impact}/5 · <span class="risk-score q-${level.class}">${score} ${level.name}</span></span>
                             ${extra}
                         </button>
                         <button class="risk-delete" type="button" data-del="${i}" title="Verwijderen" aria-label="Verwijder ${ocEsc(r.name)}">
@@ -1827,8 +1876,8 @@ const ocExport = (() => {
                         <div class="risk-edit" id="re-${i}"${open ? '' : ' hidden'}>
                             <div><label for="rn-${i}">Wat kan er misgaan?</label><input id="rn-${i}" type="text" data-f="name" data-i="${i}" value="${ocEsc(r.name)}" maxlength="300" autocomplete="off"></div>
                             <div class="risk-edit-row two">
-                                <div><label for="rp-${i}">Kans</label><select id="rp-${i}" data-f="probability" data-i="${i}">${[1,2,3,4,5,6,7,8,9,10].map(v => `<option value="${v}"${r.probability === v ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
-                                <div><label for="ri-${i}">Impact</label><select id="ri-${i}" data-f="impact" data-i="${i}">${[1,2,3,4,5,6,7,8,9,10].map(v => `<option value="${v}"${r.impact === v ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
+                                <div><label for="rp-${i}">Kans</label><select id="rp-${i}" data-f="probability" data-i="${i}">${[1,2,3,4,5].map(v => `<option value="${v}"${r.probability === v ? ' selected' : ''}>${v} · ${KANS[v].t}</option>`).join('')}</select></div>
+                                <div><label for="ri-${i}">Impact</label><select id="ri-${i}" data-f="impact" data-i="${i}">${[1,2,3,4,5].map(v => `<option value="${v}"${r.impact === v ? ' selected' : ''}>${v} · ${IMPACT[v].t}</option>`).join('')}</select></div>
                             </div>
                             <div><label for="rm-${i}">Maatregel</label><textarea id="rm-${i}" rows="2" data-f="measure" data-i="${i}" placeholder="Wat doe je om het te voorkomen of te beperken?">${ocEsc(r.measure || '')}</textarea></div>
                             <div class="risk-edit-row">
@@ -1844,10 +1893,18 @@ const ocExport = (() => {
             }).join('');
         }
 
-        // Vooraf tonen in welke groep een nieuw risico komt, zodat niemand ongemerkt op 5 x 5 blijft staan
+        // Vooraf tonen in welke groep een nieuw risico komt, zodat niemand ongemerkt in het midden blijft staan.
+        // Ook de omschrijving van het gekozen niveau staat meteen onder elke schuif.
         function updatePreview() {
-            const p = +document.getElementById('probabilitySlider').value, i = +document.getElementById('impactSlider').value;
+            const ps = document.getElementById('probabilitySlider'), is = document.getElementById('impactSlider');
+            const p = clamp5(ps.value), i = clamp5(is.value);
             const lv = getRiskLevel(p, i);
+            document.getElementById('probabilityValue').textContent = `${p} · ${KANS[p].t}`;
+            document.getElementById('impactValue').textContent = `${i} · ${IMPACT[i].t}`;
+            document.getElementById('probabilityDesc').innerHTML = `<b>${KANS[p].t}.</b> ${KANS[p].s}`;
+            document.getElementById('impactDesc').innerHTML = `<b>${IMPACT[i].t}.</b> ${IMPACT[i].s}`;
+            ps.setAttribute('aria-valuetext', `${p} van 5, ${KANS[p].t.toLowerCase()}`);
+            is.setAttribute('aria-valuetext', `${i} van 5, ${IMPACT[i].t.toLowerCase()}`);
             document.getElementById('levelPreview').innerHTML = `Dit wordt: <span class="risk-score q-${lv.class}">${p * i} ${lv.name}</span><span>${lv.action.toLowerCase()}</span>`;
         }
         function showErr(on) {
@@ -1885,10 +1942,8 @@ const ocExport = (() => {
             nameInput.value = '';
             document.getElementById('riskMeasure').value = '';
             document.getElementById('riskOwner').value = '';
-            document.getElementById('probabilitySlider').value = 5;
-            document.getElementById('impactSlider').value = 5;
-            document.getElementById('probabilityValue').textContent = '5';
-            document.getElementById('impactValue').textContent = '5';
+            document.getElementById('probabilitySlider').value = 3;
+            document.getElementById('impactSlider').value = 3;
             updatePreview();
             nameInput.focus();
 
@@ -1931,15 +1986,13 @@ const ocExport = (() => {
 
         function reset() {
             const p = blankProject();
-            state = { projects: [p], current: p.id };
+            state = { schaal: SCHAAL, projects: [p], current: p.id };
             syncFromState();
             document.getElementById('projectName').value = p.name;
             document.getElementById('riskName').value = '';
             clearErr();
-            document.getElementById('probabilitySlider').value = 5;
-            document.getElementById('impactSlider').value = 5;
-            document.getElementById('probabilityValue').textContent = '5';
-            document.getElementById('impactValue').textContent = '5';
+            document.getElementById('probabilitySlider').value = 3;
+            document.getElementById('impactSlider').value = 3;
             updatePreview();
             renderMatrix();
             renderRiskList();
@@ -1955,11 +2008,11 @@ const ocExport = (() => {
         function downloadCsv() {
             const name = document.getElementById('projectName').value || 'Risicomatrix';
 
-            let csv = 'Risico;Kans;Impact;Score;Niveau;Actie;Maatregel;Eigenaar;Status\r\n';
+            let csv = 'Risico;Kans (1-5);Kans betekent;Impact (1-5);Impact betekent;Score (1-25);Niveau;Actie;Maatregel;Eigenaar;Status\r\n';
             ranked().forEach(r => {
                 const level = getRiskLevel(r.probability, r.impact);
                 const score = r.probability * r.impact;
-                csv += [csvCell(r.name), r.probability, r.impact, score, `"${level.name}"`, `"${level.action}"`, csvCell(r.measure || ''), csvCell(r.owner || ''), csvCell(STATUS[r.status] || '')].join(';') + '\r\n';
+                csv += [csvCell(r.name), r.probability, csvCell(KANS[r.probability].t), r.impact, csvCell(IMPACT[r.impact].t), score, `"${level.name}"`, `"${level.action}"`, csvCell(r.measure || ''), csvCell(r.owner || ''), csvCell(STATUS[r.status] || '')].join(';') + '\r\n';
             });
 
             const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -1977,6 +2030,7 @@ const ocExport = (() => {
             renderMatrix();
             renderRiskList();
             document.documentElement.classList.remove('oc-wacht');
+            if (omgezet) { ocToast(`Kans en impact gaan nu van 1 tot 5. ${omgezet === 1 ? 'Je risico is' : `Je ${omgezet} risico's zijn`} omgezet: de oude waarde gedeeld door 2, naar boven afgerond.`); omgezet = 0; }
             document.getElementById('projectName').addEventListener('input', () => { saveState(); renderTabs(); });
             document.getElementById('projectName').addEventListener('blur', () => { const el = document.getElementById('projectName'); if (!el.value.trim()) { el.value = 'Naamloos'; saveState(); renderTabs(); } });
             document.getElementById('projTabs').addEventListener('click', e => {
@@ -1993,7 +2047,7 @@ const ocExport = (() => {
                     if (v) { r.name = v.slice(0, 300); const n = e.target.closest('.risk-item').querySelector('.risk-name'); if (n) n.textContent = r.name; saveState(); }
                     return;
                 }
-                if (f === 'probability' || f === 'impact') { r[f] = clamp10(v); saveState(); return; }
+                if (f === 'probability' || f === 'impact') { r[f] = clamp5(v); saveState(); return; }
                 if (v) r[f] = f === 'status' ? v : v.slice(0, f === 'owner' ? 80 : 500); else delete r[f];
                 saveState();
             });
@@ -2015,15 +2069,8 @@ const ocExport = (() => {
                 target && target.focus();
             });
 
-            document.getElementById('probabilitySlider').addEventListener('input', e => {
-                document.getElementById('probabilityValue').textContent = e.target.value;
-                updatePreview();
-            });
-
-            document.getElementById('impactSlider').addEventListener('input', e => {
-                document.getElementById('impactValue').textContent = e.target.value;
-                updatePreview();
-            });
+            document.getElementById('probabilitySlider').addEventListener('input', updatePreview);
+            document.getElementById('impactSlider').addEventListener('input', updatePreview);
 
             document.getElementById('addRisk').addEventListener('click', addRisk);
             document.getElementById('riskList').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (b) deleteRisk(+b.dataset.del); });
@@ -2078,18 +2125,18 @@ const ocExport = (() => {
 
 
             document.getElementById('probabilityLabel').addEventListener('mouseenter', e => {
-                showTooltip(e.target, 'Kans: Hoe waarschijnlijk is het dat dit risico zich voordoet? 1 = zeer onwaarschijnlijk, 10 = zeer waarschijnlijk.');
+                showTooltip(e.target, 'Kans: hoe groot is de kans dat dit gebeurt? 1 = bijna nooit, 3 = misschien, 5 = bijna zeker.');
             });
             document.getElementById('probabilityLabel').addEventListener('mouseleave', hideTooltip);
 
             document.getElementById('impactLabel').addEventListener('mouseenter', e => {
-                showTooltip(e.target, 'Impact: Wat is de ernst van de gevolgen? 1 = heel klein effect, 10 = heel grote gevolgen voor het project.');
+                showTooltip(e.target, 'Impact: hoe erg zijn de gevolgen voor het project? 1 = heel klein, 3 = merkbaar, 5 = heel groot.');
             });
             document.getElementById('impactLabel').addEventListener('mouseleave', hideTooltip);
 
             // Uitleg ook bij toetsenbordfocus en tikken (niet enkel bij muis)
-            [['probabilityLabel', 'Kans: Hoe waarschijnlijk is het dat dit risico zich voordoet? 1 = zeer onwaarschijnlijk, 10 = zeer waarschijnlijk.'],
-             ['impactLabel', 'Impact: Wat is de ernst van de gevolgen? 1 = heel klein effect, 10 = heel grote gevolgen voor het project.']].forEach(([id, text]) => {
+            [['probabilityLabel', 'Kans: hoe groot is de kans dat dit gebeurt? 1 = bijna nooit, 3 = misschien, 5 = bijna zeker.'],
+             ['impactLabel', 'Impact: hoe erg zijn de gevolgen voor het project? 1 = heel klein, 3 = merkbaar, 5 = heel groot.']].forEach(([id, text]) => {
                 const el = document.getElementById(id);
                 el.addEventListener('focus', () => showTooltip(el, text));
                 el.addEventListener('blur', hideTooltip);

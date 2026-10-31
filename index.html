@@ -494,7 +494,7 @@
         /* Quadrant labels inside matrix */
         .quadrant-label {
             position: absolute;
-            font-size: 0.6875rem;
+            font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -926,7 +926,7 @@
         .axis-label-x { left: 2rem; right: 0.25rem; bottom: 0.25rem; top: auto; text-align: center; }
         .axis-label-y { top: 0.25rem; bottom: 2rem; left: 0; width: 1.5rem; display: flex; align-items: center; justify-content: center; }
         .axis-label-y span { display: block; transform: rotate(-90deg); white-space: nowrap; }
-        .quadrant-label { font-size: 0.625rem; z-index: 1; }
+        .quadrant-label { font-size: 0.6875rem; z-index: 1; }
         .quadrant-label.q-tl, .quadrant-label.q-tr { top: 6px; }
         .quadrant-label.q-bl, .quadrant-label.q-br { bottom: 6px; }
         .point-dot { width: auto; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; border: 2px solid #fff; display: flex; align-items: center; justify-content: center;
@@ -996,7 +996,9 @@
         .risk-edit textarea, .risk-edit input, .risk-edit select { width: 100%; min-height: 44px; padding: 0.5rem 0.75rem; font: inherit; font-size: 0.9375rem; color: var(--slate-800); background: var(--white); border: 1.5px solid var(--slate-200); border-radius: var(--radius-sm); }
         .risk-edit textarea { resize: vertical; }
         .risk-edit-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.625rem; }
-        @media (max-width: 420px) { .risk-edit-row { grid-template-columns: 1fr; } }
+        @media (max-width: 420px) { .risk-edit-row { grid-template-columns: 1fr; } .risk-edit-row.two { grid-template-columns: 1fr 1fr; } }
+        .level-preview { margin: -0.25rem 0 0.75rem; font-size: 0.8125rem; color: #475569; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+        .level-preview .risk-score { font-variant-numeric: tabular-nums; }
         .risk-edit .done-btn { justify-self: end; min-height: 44px; padding: 0 1rem; border-radius: 10px; border: 1.5px solid #a7f3d0; background: #fff; color: #047857; font: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
         .restart-row { gap: 0.25rem; flex-wrap: wrap; }
         @media (max-width: 480px) {
@@ -1062,8 +1064,8 @@ body { min-height:100dvh; }
                 <h2 class="card-title">Risico toevoegen</h2>
                 <div class="risk-form">
                     <div class="form-group">
-                        <label for="riskName">Risico omschrijving</label>
-                        <input type="text" id="riskName" enterkeyhint="done" placeholder="Bijv. Vertraging leverancier, Budget overschrijding..." autocomplete="off" aria-describedby="riskNameErr">
+                        <label for="riskName">Wat kan er misgaan?</label>
+                        <input type="text" id="riskName" enterkeyhint="done" placeholder="bv. De leverancier levert te laat" autocomplete="off" aria-describedby="riskNameErr">
                         <p class="field-error" id="riskNameErr" hidden>Typ eerst wat er kan misgaan.</p>
                     </div>
                     
@@ -1090,6 +1092,7 @@ body { min-height:100dvh; }
                             <span>heel groot</span>
                         </div>
                     </div>
+                    <p class="level-preview" id="levelPreview" aria-live="polite"></p>
                     
                     <details class="more-fields" id="moreFields">
                         <summary>Maatregel en eigenaar (optioneel)</summary>
@@ -1527,10 +1530,10 @@ const ocExport = (() => {
         let risks = [];
         let isVoorbeeld = false;   // voorbeelddata: voorbeeld:true in de opslag, niet gedeeld met andere tools
         const VOORBEELD = { project: 'Digitaal premieloket renovatie', items: [
-            { name: 'Koppeling met het registratiesysteem raakt niet op tijd klaar', probability: 7, impact: 8 },
-            { name: 'Piek in aanvragen na de campagne in maart', probability: 8, impact: 5 },
-            { name: 'Advies informatieveiligheid komt laat', probability: 5, impact: 7 },
-            { name: 'Loketmedewerkers kennen het nieuwe formulier nog niet', probability: 6, impact: 4 },
+            { name: 'Koppeling met het registratiesysteem raakt niet op tijd klaar', probability: 7, impact: 8, measure: 'Wekelijks overleg met de leverancier, en een papieren noodformulier klaarhouden', owner: 'Dienst informatica', status: 'bezig' },
+            { name: 'Piek in aanvragen na de campagne in maart', probability: 8, impact: 5, measure: 'Extra loketuren inplannen in de weken na de campagne', owner: 'Loketverantwoordelijke', status: 'open' },
+            { name: 'Advies informatieveiligheid komt laat', probability: 5, impact: 7, measure: 'Het advies nu al aanvragen, met een vaste datum', owner: 'Projectleider', status: 'klaar' },
+            { name: 'Loketmedewerkers kennen het nieuwe formulier nog niet', probability: 6, impact: 4, measure: 'Korte opleiding voor de start', owner: 'Loketverantwoordelijke' },
             { name: 'Regels voor de premie wijzigen tijdens het project', probability: 3, impact: 8 },
             { name: 'Budget voor de testfase is te krap', probability: 4, impact: 3 },
             { name: 'Tijdelijke uitval van de website', probability: 2, impact: 4 }
@@ -1596,6 +1599,8 @@ const ocExport = (() => {
             const lists = state.projects.filter(x => !x.voorbeeld && x.items.length).map(x => ({
                 name: x.name.trim() || "Risico's",
                 items: x.items.map(r => ({ type: 'risico', text: r.name, note: riskNote(r), who: r.owner || undefined }))
+                    // een maatregel is werk: die gaat ook als actie mee (behalve als het risico onder controle is)
+                    .concat(x.items.filter(r => r.measure && r.status !== 'klaar').map(r => ({ type: 'actie', text: r.measure, who: r.owner || undefined, note: `maatregel voor: ${r.name}` })))
             }));
             if (lists.length) ocShare.publish('risico', 'Risicomatrix', lists); else ocShare.clear('risico');
         }
@@ -1820,6 +1825,11 @@ const ocExport = (() => {
                             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
                         </button>
                         <div class="risk-edit" id="re-${i}"${open ? '' : ' hidden'}>
+                            <div><label for="rn-${i}">Wat kan er misgaan?</label><input id="rn-${i}" type="text" data-f="name" data-i="${i}" value="${ocEsc(r.name)}" maxlength="300" autocomplete="off"></div>
+                            <div class="risk-edit-row two">
+                                <div><label for="rp-${i}">Kans</label><select id="rp-${i}" data-f="probability" data-i="${i}">${[1,2,3,4,5,6,7,8,9,10].map(v => `<option value="${v}"${r.probability === v ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
+                                <div><label for="ri-${i}">Impact</label><select id="ri-${i}" data-f="impact" data-i="${i}">${[1,2,3,4,5,6,7,8,9,10].map(v => `<option value="${v}"${r.impact === v ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
+                            </div>
                             <div><label for="rm-${i}">Maatregel</label><textarea id="rm-${i}" rows="2" data-f="measure" data-i="${i}" placeholder="Wat doe je om het te voorkomen of te beperken?">${ocEsc(r.measure || '')}</textarea></div>
                             <div class="risk-edit-row">
                                 <div><label for="ro-${i}">Eigenaar</label><input id="ro-${i}" type="text" list="ownerList" data-f="owner" data-i="${i}" value="${ocEsc(r.owner || '')}" placeholder="Wie volgt dit op?" autocomplete="off"></div>
@@ -1834,6 +1844,12 @@ const ocExport = (() => {
             }).join('');
         }
 
+        // Vooraf tonen in welke groep een nieuw risico komt, zodat niemand ongemerkt op 5 x 5 blijft staan
+        function updatePreview() {
+            const p = +document.getElementById('probabilitySlider').value, i = +document.getElementById('impactSlider').value;
+            const lv = getRiskLevel(p, i);
+            document.getElementById('levelPreview').innerHTML = `Dit wordt: <span class="risk-score q-${lv.class}">${p * i} ${lv.name}</span><span>${lv.action.toLowerCase()}</span>`;
+        }
         function showErr(on) {
             const input = document.getElementById('riskName'), err = document.getElementById('riskNameErr');
             err.hidden = !on;
@@ -1873,6 +1889,7 @@ const ocExport = (() => {
             document.getElementById('impactSlider').value = 5;
             document.getElementById('probabilityValue').textContent = '5';
             document.getElementById('impactValue').textContent = '5';
+            updatePreview();
             nameInput.focus();
 
             renderMatrix();
@@ -1923,6 +1940,7 @@ const ocExport = (() => {
             document.getElementById('impactSlider').value = 5;
             document.getElementById('probabilityValue').textContent = '5';
             document.getElementById('impactValue').textContent = '5';
+            updatePreview();
             renderMatrix();
             renderRiskList();
             try { localStorage.removeItem(STORE_KEY); } catch (e) {}
@@ -1937,11 +1955,11 @@ const ocExport = (() => {
         function downloadCsv() {
             const name = document.getElementById('projectName').value || 'Risicomatrix';
 
-            let csv = 'Risico,Kans,Impact,Score,Niveau,Actie,Maatregel,Eigenaar,Status\n';
+            let csv = 'Risico;Kans;Impact;Score;Niveau;Actie;Maatregel;Eigenaar;Status\r\n';
             ranked().forEach(r => {
                 const level = getRiskLevel(r.probability, r.impact);
                 const score = r.probability * r.impact;
-                csv += `${csvCell(r.name)},${r.probability},${r.impact},${score},"${level.name}","${level.action}",${csvCell(r.measure || '')},${csvCell(r.owner || '')},${csvCell(STATUS[r.status] || '')}\n`;
+                csv += [csvCell(r.name), r.probability, r.impact, score, `"${level.name}"`, `"${level.action}"`, csvCell(r.measure || ''), csvCell(r.owner || ''), csvCell(STATUS[r.status] || '')].join(';') + '\r\n';
             });
 
             const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -1954,6 +1972,7 @@ const ocExport = (() => {
         // Event listeners
         document.addEventListener('DOMContentLoaded', () => {
             initRiskGrid();
+            updatePreview();
             loadState();
             renderMatrix();
             renderRiskList();
@@ -1970,10 +1989,23 @@ const ocExport = (() => {
                 const f = e.target.dataset && e.target.dataset.f; if (!f) return;
                 const r = risks[+e.target.dataset.i]; if (!r) return;
                 const v = e.target.value.trim();
+                if (f === 'name') {   // een lege naam bewaren we niet: dan blijft de vorige staan
+                    if (v) { r.name = v.slice(0, 300); const n = e.target.closest('.risk-item').querySelector('.risk-name'); if (n) n.textContent = r.name; saveState(); }
+                    return;
+                }
+                if (f === 'probability' || f === 'impact') { r[f] = clamp10(v); saveState(); return; }
                 if (v) r[f] = f === 'status' ? v : v.slice(0, f === 'owner' ? 80 : 500); else delete r[f];
                 saveState();
             });
-            list.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.f === 'status') { const i = +e.target.dataset.i; renderRiskList(); const s = document.getElementById('rs-' + i); s && s.focus(); } });
+            list.addEventListener('change', e => {
+                const f = e.target.dataset && e.target.dataset.f;
+                if (f === 'name' && !e.target.value.trim()) { const r = risks[+e.target.dataset.i]; if (r) e.target.value = r.name; return; }
+                if (f !== 'status' && f !== 'probability' && f !== 'impact') return;
+                const id = e.target.id;
+                if (f !== 'status') renderMatrix();
+                renderRiskList();
+                const s = document.getElementById(id); s && s.focus();
+            });
             list.addEventListener('click', e => {
                 const o = e.target.closest('[data-open]'); if (!o) return;
                 const i = +o.dataset.open, wasDone = o.classList.contains('done-btn');
@@ -1985,10 +2017,12 @@ const ocExport = (() => {
 
             document.getElementById('probabilitySlider').addEventListener('input', e => {
                 document.getElementById('probabilityValue').textContent = e.target.value;
+                updatePreview();
             });
 
             document.getElementById('impactSlider').addEventListener('input', e => {
                 document.getElementById('impactValue').textContent = e.target.value;
+                updatePreview();
             });
 
             document.getElementById('addRisk').addEventListener('click', addRisk);

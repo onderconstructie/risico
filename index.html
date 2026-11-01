@@ -1055,6 +1055,19 @@ body { min-height:100dvh; }
         .ocb-s { font-size:0.8125rem; font-weight:400; color:#64748b; line-height:1.35; margin-top:1px; }
         .ocb-note { margin:0.5rem 0 0; font-size:0.75rem; line-height:1.4; color:#64748b; text-align:center; }
 </style>
+<style>
+/* UX-audit (nov 2026) */
+/* kaarten niet uitrekken: de legende staat meteen onder het formulier, geen gat */
+.main-grid { align-items:start; }
+/* iPad en laptop: matrix naast het formulier, het overzicht breed eronder (eerst stond de matrix op de iPad helemaal onderaan, en was het overzicht op een laptop een smalle strook) */
+@media (min-width:769px) and (max-width:1399px) {
+  .main-grid { grid-template-columns:minmax(270px, 320px) minmax(0, 1fr); grid-template-areas:"form matrix" "form list"; }
+}
+/* cijfers op de stippen beter leesbaar: donkerdere tint van dezelfde kleur */
+.point-dot.q-high, .risk-num.q-high { background:#c2410c; color:#fff; }
+.point-dot.q-low, .risk-num.q-low { background:#047857; color:#fff; }
+.card-title, .risk-score, .legend-item, .legend-range, .quadrant-label, .point-dot { font-size:0.75rem; }
+</style>
 </head>
 <body>
     <header class="header oc-head">

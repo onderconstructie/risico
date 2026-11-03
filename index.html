@@ -988,6 +988,16 @@
         .risk-open .risk-name, .risk-open .risk-meta, .risk-open .risk-extra { display: block; }
         .risk-extra { font-size: 0.75rem; color: #475569; margin-top: 2px; overflow-wrap: anywhere; }
         .risk-extra.hint { color: #047857; font-weight: 600; }
+        /* Overgenomen uit een andere tool: kans en impact nog in te schatten */
+        .oc-import { display:inline-flex; align-items:center; gap:.375rem; font:inherit; font-size:.8125rem; font-weight:600; color:#047857; background:#fff; border:1px dashed #a7f3d0; border-radius:999px; padding:.3125rem .75rem; cursor:pointer; white-space:nowrap; }
+        .oc-import:hover { background:#ecfdf5; border-color:#10b981; } .oc-import svg { width:15px; height:15px; } .oc-import[hidden] { display:none; }
+        .import-row { margin-top: 0.625rem; text-align: center; }
+        .import-row[hidden] { display: none; }
+        .todo-head { display: flex; align-items: baseline; gap: 0.375rem; font-size: 0.8125rem; font-weight: 700; color: #334155; margin: 0 0 0.375rem; }
+        .todo-head span { font-weight: 500; color: #64748b; }
+        .risk-item.q-none { border-left: 4px dashed #94a3b8; background: #f8fafc; }
+        .risk-num.q-none { background: #fff; color: #475569; border: 1.5px dashed #94a3b8; }
+        .risk-list .todo-sep { height: 0.25rem; }
         .review-note { font-size: 0.8125rem; line-height: 1.45; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 0.5rem 0.75rem; margin: 0 0 0.75rem; }
         .review-note[hidden] { display: none; }
         .next-note { font-size: 0.8125rem; line-height: 1.45; color: #047857; background: #ecfdf5; border: 1px solid #d1fae5; border-radius: 10px; padding: 0.625rem 0.875rem; margin: 0.75rem 0 0; text-align: center; }
@@ -1311,6 +1321,7 @@ details.explain.oc-u .oc-u-noot a:hover { text-decoration-color:var(--u-donker);
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
                         Toevoegen
                     </button>
+                    <div class="import-row" id="importRow" hidden><button type="button" class="oc-import" id="ocImp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v11M7.5 9.5L12 14l4.5-4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>Overnemen uit…</button></div>
                 </div>
 
                 <div class="legend-section">
@@ -1373,7 +1384,7 @@ details.explain.oc-u .oc-u-noot a:hover { text-decoration-color:var(--u-donker);
             <div class="inner">
                 <p>Met de Risicomatrix zet je op een rij wat er kan misgaan, hoe waarschijnlijk dat is en hoe erg het zou zijn.</p>
                 <ul>
-                    <li><b>Beschrijf een risico.</b> Schrijf wat er kan misgaan en schat de kans en de impact, elk van 1 tot 5. Onder elke schuif staat wat dat cijfer betekent.</li>
+                    <li><b>Beschrijf een risico.</b> Schrijf wat er kan misgaan en schat de kans en de impact, elk van 1 tot 5. Onder elke schuif staat wat dat cijfer betekent. Met "Overnemen uit…" haal je risico's uit andere tools, zoals de Projectopdracht. Die staan bovenaan het overzicht tot je hun kans en impact kiest.</li>
                     <li><b>Zo krijgt een risico zijn kleur.</b> De score is kans maal impact, dus van 1 tot 25. Van 1 tot 4 is Laag (groen), van 5 tot 9 Gemiddeld (geel), van 10 tot 14 Hoog (oranje) en vanaf 15 Kritiek (rood). Kans 3 en impact 5 is dus al kritiek. In het overzicht staat de hoogste score bovenaan. Bij een gelijke score komt de grootste impact eerst.</li>
                     <li><b>Leg een maatregel en een eigenaar vast.</b> Dat doe je onder "Maatregel en eigenaar". Boven het overzicht zie je hoeveel hoge en kritieke risico's nog geen maatregel of geen eigenaar hebben. Daar begin je een bespreking mee.</li>
                     <li><b>Volg op en schat opnieuw.</b> Geef elk risico een stand: nog te doen, maatregel loopt of onder controle. Zet je een hoog of kritiek risico op onder controle, schat kans en impact dan opnieuw. Na een goede maatregel is het risico meestal kleiner.</li>
@@ -1404,6 +1415,10 @@ function ocProject(fb) { try { const p = JSON.parse(localStorage.getItem('oc.pro
      'taak'        iets dat gedaan moet worden                     { text, note? }
      'actie'       taak met eigenaar en/of termijn                 { text, who?, when? }
      'risico'      risico met kans en impact                       { text, note? }
+     'besluit'     beslissing (Beslissingslog)                     { text, note?, who?, when? }
+     'doel'        wat er beter moet worden (Projectopdracht)      { text, note? }
+                   Andere tools kiezen zelf welke soorten ze tonen (types in pick/count/sources) en slaan onbekende soorten dus over.
+   'when' is bij voorkeur een datum als JJJJ-MM-DD; in "Overnemen uit…" staat die als 15 februari 2027.
 
    Gebruik:
      ocShare.publish('raci', 'RACI-matrix', [
@@ -1415,8 +1430,11 @@ function ocProject(fb) { try { const p = JSON.parse(localStorage.getItem('oc.pro
 */
 const ocShare = (() => {
   const PREFIX = 'oc.share.';
-  const LABEL = { betrokkene:'betrokkenen', taak:'taken', actie:'acties', risico:"risico's" };
+  const LABEL = { betrokkene:'betrokkenen', taak:'taken', actie:'acties', risico:"risico's", besluit:'besluiten', doel:'doelen' };
   const esc = v => String(v == null ? '' : v).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+  // Een datum als JJJJ-MM-DD tonen we zoals in de tools: 15 februari 2027. Andere tekst blijft zoals ze is.
+  const datum = v => { const s = String(v || '').trim(), d = /^\d{4}-\d{2}-\d{2}$/.test(s) ? new Date(s + 'T12:00:00') : null;
+    return d && !isNaN(d) ? d.toLocaleDateString('nl-BE', { day:'numeric', month:'long', year:'numeric' }) : s; };
 
   function publish(id, tool, lists) {
     try {
@@ -1502,7 +1520,7 @@ const ocShare = (() => {
           <div class="ocs-src"><div class="ocs-src-head"><b>${esc(s.tool)}</b><span>${esc(s.list)} · ${s.items.length}</span>
             <button class="ocs-all" type="button" data-all="${si}">alles</button></div>
             ${s.items.map((it, ii) => `<label class="ocs-item"><input type="checkbox" data-s="${si}" data-i="${ii}">
-              <span>${esc(it.text)}${it.who || it.when || it.note ? `<small>${esc([it.who, it.when, it.note].filter(Boolean).join(' · '))}</small>` : ''}</span></label>`).join('')}
+              <span>${esc(it.text)}${it.who || it.when || it.note ? `<small>${esc([it.who, datum(it.when), it.note].filter(Boolean).join(' · '))}</small>` : ''}</span></label>`).join('')}
           </div>`).join('') : `<p class="ocs-empty">Er zijn nog geen ${esc(what)} om over te nemen. Vul ze eerst in een andere tool van Onder Constructie in, dan verschijnen ze hier.</p>`}
         </div>
         <div class="ocs-foot"><button class="ocs-btn ocs-cancel" type="button">Annuleer</button>
@@ -1537,7 +1555,7 @@ const ocShare = (() => {
   return { publish, clear, pick, count, sources, esc };
 })();
 
-/* ---------- Download als afbeelding of PDF (gedeeld door de Onder Constructie-tools, v2) ----------
+/* ---------- Download als afbeelding of PDF (gedeeld door de Onder Constructie-tools, v3) ----------
    Gebruik:
      ocExport.png(bouwFn, 'bestandsnaam', { landscape:true })
      ocExport.pdf(bouwFn, 'bestandsnaam', { landscape:true })
@@ -1545,6 +1563,10 @@ const ocShare = (() => {
    Die komt buiten beeld op een witte pagina met kop (titel, ondertitel, datum) en voet.
    Zet data-oc-keep op blokken die in een PDF niet over twee pagina's gesplitst mogen worden
    (een beslissing, een kaartje, een rij); ze schuiven dan door naar de volgende pagina.
+   Een browser tekent geen canvas boven een maximale grootte (Chrome: 65.535 px hoog of breed; iPad en iPhone:
+   ongeveer 16 miljoen pixels). Daarboven wordt de PDF of afbeelding zwart of leeg. Daarom tekent de PDF
+   telkens een paar hele pagina's tegelijk, op volle scherpte, en wordt een heel lange afbeelding net zo
+   scherp getekend als binnen die grens kan.
    html2canvas en jsPDF worden pas geladen bij de eerste download, van dezelfde adressen als de
    andere tools, zodat de app ze offline kan bewaren. */
 const ocExport = (() => {
@@ -1553,6 +1575,12 @@ const ocExport = (() => {
     pdf: '/lib/jspdf-2.5.1.umd.min.js'
   };
   const A4 = { w: 210, h: 297 }, MARGIN = 10;   // mm
+  // Grenzen van een canvas: iPad en iPhone ongeveer 16 miljoen pixels; Chrome en Edge tot 65.535 px hoog of breed; andere browsers 32.767 px.
+  const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const CHROME = !IOS && /Chrome\//.test(navigator.userAgent);
+  const SCALE = 2, MAX_SIDE = CHROME ? 65000 : 32000, MAX_AREA = IOS ? 16e6 : 120e6;   // scherpte; langste zijde en oppervlakte in pixels
+  // Grootste schaal (tot SCALE) waarbij een canvas van w × h CSS-pixels nog getekend wordt.
+  const fit = (w, h, area = MAX_AREA) => Math.floor(Math.min(SCALE, Math.sqrt(area / (w * h)), MAX_SIDE / h, MAX_SIDE / w) * 100) / 100;
   const loaded = {};
   function load(url) {
     if (!loaded[url]) loaded[url] = new Promise((ok, fail) => {
@@ -1595,16 +1623,20 @@ const ocExport = (() => {
       }
     }
   }
-  async function canvasOf(build, opts) {
-    await load(LIBS.h2c);
+  // Zet de exportpagina buiten beeld, wacht op de lettertypes en geeft ze aan fn; ruimt daarna op.
+  async function withPage(build, width, fn) {
     const built = build();
-    const node = page(built.node, { title: built.title, subtitle: built.subtitle, width: opts.width });
+    const node = page(built.node, { title: built.title, subtitle: built.subtitle, width });
     try {
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
-      if (opts.pageH) keepTogether(node, opts.pageH);
-      return await window.html2canvas(node, { scale: 2, backgroundColor: '#ffffff', logging: false, useCORS: true });
+      return await fn(node);
     } finally { node.remove(); }
   }
+  const heightOf = node => Math.ceil(node.getBoundingClientRect().height);
+  // Alleen de exportpagina gaat mee in de kopie die html2canvas maakt: de rest van de tool overslaan scheelt veel tijd.
+  const draw = (node, o) => window.html2canvas(node, Object.assign({ scale: SCALE, backgroundColor: '#ffffff', logging: false, useCORS: true,
+    ignoreElements: el => el.parentNode === document.body && el !== node && !/^(STYLE|LINK)$/.test(el.tagName) }, o));
+  const free = c => { c.width = c.height = 0; };     // geheugen meteen vrijgeven (iPad)
   function save(blob, name) {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = name;
@@ -1613,31 +1645,45 @@ const ocExport = (() => {
   }
   const widthFor = opts => opts.width || (opts.landscape ? 1120 : 800);
   async function png(build, name, opts = {}) {
-    const c = await canvasOf(build, { width: widthFor(opts) });
-    await new Promise(ok => c.toBlob(b => { save(b, name + '.png'); ok(); }, 'image/png'));
+    const width = widthFor(opts);
+    await load(LIBS.h2c);
+    const c = await withPage(build, width, node => draw(node, { scale: fit(width, heightOf(node)) }));
+    await new Promise(ok => c.toBlob(b => { save(b, name + '.png'); free(c); ok(); }, 'image/png'));
   }
   async function pdf(build, name, opts = {}) {
     const landscape = !!opts.landscape, width = widthFor(opts);
     const pw = landscape ? A4.h : A4.w, ph = landscape ? A4.w : A4.h, w = pw - 2 * MARGIN;
     const pageCss = (ph - 2 * MARGIN) / w * width;       // paginahoogte in CSS-pixels van de exportknoop
-    const [c] = await Promise.all([canvasOf(build, { width, pageH: pageCss }), load(LIBS.pdf)]);
+    await Promise.all([load(LIBS.h2c), load(LIBS.pdf)]);
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: landscape ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
-    const scale = w / c.width, pageH = (ph - 2 * MARGIN) / scale;   // paginahoogte in canvaspixels
-    // Net te hoog voor één pagina (bv. alleen de voettekst): verkleinen tot het past, geen lege tweede pagina.
-    if (c.height > pageH && c.height <= pageH * 1.2) {
-      const f = pageH / c.height, ww = w * f;
-      doc.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', MARGIN + (w - ww) / 2, MARGIN, ww, ph - 2 * MARGIN);
-      save(doc.output('blob'), name + '.pdf');
-      return;
-    }
-    for (let y = 0, i = 0; y < c.height - 2; y += pageH, i++) {
-      const h = Math.min(pageH, c.height - y);
-      const part = document.createElement('canvas'); part.width = c.width; part.height = h;
-      part.getContext('2d').drawImage(c, 0, y, c.width, h, 0, 0, c.width, h);
-      if (i) doc.addPage();
-      doc.addImage(part.toDataURL('image/jpeg', 0.92), 'JPEG', MARGIN, MARGIN, w, h * scale);
-    }
+    await withPage(build, width, async node => {
+      const H0 = heightOf(node);
+      // Net te hoog voor één pagina (bv. alleen de voettekst): verkleinen tot het past, geen lege tweede pagina.
+      if (H0 > pageCss && H0 <= pageCss * 1.2) {
+        const c = await draw(node, { scale: fit(width, H0) }), ww = w * pageCss / H0;
+        doc.addImage(c.toDataURL('image/jpeg', 0.92), 'JPEG', MARGIN + (w - ww) / 2, MARGIN, ww, ph - 2 * MARGIN);
+        free(c); return;
+      }
+      keepTogether(node, pageCss);
+      const H = heightOf(node), s = fit(width, pageCss), pagePx = pageCss * s;
+      const n = Math.max(1, Math.ceil((H - 1) / pageCss));                       // aantal pagina's
+      const per = Math.max(1, Math.floor(Math.min(MAX_AREA / (width * s * pagePx), MAX_SIDE / pagePx)));   // pagina's per stuk
+      for (let i = 0; i < n; i += per) {
+        const y = i * pageCss, k = Math.min(per, n - i);
+        const c = await draw(node, { scale: s, y, height: Math.ceil(Math.min(k * pageCss, H - y)) });
+        for (let j = 0; j < k; j++) {
+          const top = Math.round(j * pagePx), h = Math.min(Math.round((j + 1) * pagePx), c.height) - top;
+          if (h < 1) break;
+          const part = document.createElement('canvas'); part.width = c.width; part.height = h;
+          part.getContext('2d').drawImage(c, 0, top, c.width, h, 0, 0, c.width, h);
+          if (i + j) doc.addPage();
+          doc.addImage(part.toDataURL('image/jpeg', 0.92), 'JPEG', MARGIN, MARGIN, w, h * w / c.width);
+          free(part);
+        }
+        free(c);
+      }
+    });
     save(doc.output('blob'), name + '.pdf');
   }
   return { png, pdf };
@@ -1723,11 +1769,13 @@ const ocExport = (() => {
             return (rv ? `<div style="font-size:13px;color:#92400e;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 12px;margin-bottom:16px">${ocEsc(rv)}</div>` : '') + groups.map(g => ocGroupHTML(g.color, g.text, g.name, g.sub,
                 ranked().filter(r => getRiskLevel(r.probability, r.impact).name === g.name)
                      .map(r => ({ name: `${r.num}. ${r.name}`, meta: `kans ${r.probability}/5 · impact ${r.impact}/5 · score ${r.probability * r.impact}`,
-                         extra: [r.measure ? `Maatregel: ${r.measure}` : '', r.owner ? `Eigenaar: ${r.owner}` : '', STATUS[r.status] || ''].filter(Boolean).join(' · ') })))).join('');
+                         extra: [r.measure ? `Maatregel: ${r.measure}` : '', r.owner ? `Eigenaar: ${r.owner}` : '', STATUS[r.status] || ''].filter(Boolean).join(' · ') })))).join('')
+                + ocGroupHTML('#cbd5e1', '#475569', 'Nog in te schatten', 'kans en impact nog kiezen', risks.filter(r => r.nieuw)
+                     .map(r => ({ name: r.name, meta: '', extra: [r.measure ? `Maatregel: ${r.measure}` : '', r.owner ? `Eigenaar: ${r.owner}` : ''].filter(Boolean).join(' · ') })));
         }
         let risks = [];
         let isVoorbeeld = false;   // voorbeelddata: voorbeeld:true in de opslag, niet gedeeld met andere tools
-        const VOORBEELD = { project: 'Digitaal premieloket renovatie', items: [
+        const VOORBEELD = { project: 'Digitaal premieloket voor renovatie', items: [
             { name: 'Koppeling met het registratiesysteem raakt niet op tijd klaar', probability: 4, impact: 4, measure: 'Wekelijks overleg met de leverancier, en een papieren noodformulier klaarhouden', owner: 'Dienst informatica', status: 'bezig' },
             { name: 'Piek in aanvragen na de campagne in maart', probability: 4, impact: 3, measure: 'Extra loketuren inplannen in de weken na de campagne', owner: 'Loketverantwoordelijke', status: 'open' },
             { name: 'Advies informatieveiligheid komt laat', probability: 3, impact: 4, measure: 'Het advies nu al aanvragen, met een vaste datum', owner: 'Projectleider', status: 'bezig' },
@@ -1738,7 +1786,8 @@ const ocExport = (() => {
         ] };
 
         /* ---------- Opslag en delen: één lijst risico's per project ----------
-           risico.v1 = { schaal:5, projects:[{ id, name, items:[{ name, probability, impact, measure?, owner?, status? }], voorbeeld? }], current }
+           risico.v1 = { schaal:5, projects:[{ id, name, items:[{ name, probability, impact, measure?, owner?, status?, nieuw? }], voorbeeld? }], current }
+           nieuw:true = overgenomen uit een andere tool, kans en impact nog in te schatten (de getallen zijn dan enkel een plaatshouder).
            Oud formaat { project, items, voorbeeld? } wordt bij het laden het eerste project.
            Schaal: kans en impact gaan van 1 tot 5. Gegevens zonder schaal:5 komen van de oude schaal 1 tot 10
            (opslag, een geopend bestand of een reservekopie). Die zetten we één keer om: nieuwe waarde = afgerond naar boven (oud / 2). */
@@ -1748,6 +1797,7 @@ const ocExport = (() => {
         let state = null;
         let loaded = false;   // pas bewaren nadat de opgeslagen gegevens ingelezen zijn
         let openIdx = null;   // risico waarvan de details open staan (index in risks)
+        const gekozen = new WeakMap();   // overgenomen risico: welke van kans en impact al gekozen is
         const cur = () => state.projects.find(p => p.id === state.current) || state.projects[0];
         const SCHAAL = 5;
         const clamp5 = v => Math.max(1, Math.min(SCHAAL, Math.round(+v) || 1));
@@ -1774,6 +1824,7 @@ const ocExport = (() => {
             if (m) r.measure = m;
             if (o) r.owner = o;
             if (STATUS[x.status]) r.status = x.status;
+            if (x.nieuw === true) r.nieuw = true;
             return r;
         }
         function cleanItems(arr, oud) { return (Array.isArray(arr) ? arr : []).filter(x => x && typeof x.name === 'string' && x.name.trim()).map(x => cleanRisk(x, oud)); }
@@ -1809,7 +1860,7 @@ const ocExport = (() => {
             const el = document.getElementById('projectName');
             if (document.activeElement !== el) el.value = p.name;
         }
-        const riskNote = r => [`kans ${r.probability}/5 · impact ${r.impact}/5`, r.measure ? `maatregel: ${r.measure}` : '', STATUS[r.status] || ''].filter(Boolean).join(' · ');
+        const riskNote = r => [r.nieuw ? 'kans en impact nog in te schatten' : `kans ${r.probability}/5 · impact ${r.impact}/5`, r.measure ? `maatregel: ${r.measure}` : '', STATUS[r.status] || ''].filter(Boolean).join(' · ');
         function saveState() {
             if (!loaded) return;
             const p = cur();
@@ -1970,7 +2021,7 @@ const ocExport = (() => {
 
         // Nummering zoals in de lijst: hoogste score eerst, bij gelijke score de grootste impact eerst
         function ranked() {
-            return risks.map((r, i) => ({ ...r, originalIndex: i }))
+            return risks.map((r, i) => ({ ...r, originalIndex: i })).filter(r => !r.nieuw)
                 .sort((a, b) => (b.probability * b.impact) - (a.probability * a.impact) || b.impact - a.impact || a.originalIndex - b.originalIndex)
                 .map((r, k) => ({ ...r, num: k + 1 }));
         }
@@ -1998,7 +2049,7 @@ const ocExport = (() => {
 
         /* Wat een risicoreview eerst bekijkt: hoge en kritieke risico's zonder maatregel of zonder eigenaar */
         function reviewText() {
-            const hoog = risks.filter(r => r.probability * r.impact >= 10);
+            const hoog = risks.filter(r => !r.nieuw && r.probability * r.impact >= 10);
             const zm = hoog.filter(r => !r.measure).length, ze = hoog.filter(r => !r.owner).length;
             const parts = [zm && `${zm} zonder maatregel`, ze && `${ze} zonder eigenaar`].filter(Boolean);
             return parts.length ? `Hoog of kritiek: ${parts.join(', ')}.` : '';
@@ -2026,6 +2077,7 @@ const ocExport = (() => {
             st.querySelector('[data-vb="start"]').hidden = state.projects.some(p => p.voorbeeld);
             document.getElementById('matrixDl').hidden = !risks.length;
             document.getElementById('vbBar').hidden = !isVoorbeeld;
+            refreshImport();
             const many = state.projects.length > 1;
             const rb = document.getElementById('ocRestart');
             rb.textContent = many ? 'Verwijder dit project' : 'Opnieuw beginnen';
@@ -2047,17 +2099,21 @@ const ocExport = (() => {
                 return;
             }
 
-            container.innerHTML = sortedRisks.map(r => {
-                const level = getRiskLevel(r.probability, r.impact);
+            // Overgenomen risico's zonder inschatting staan bovenaan, zonder nummer en buiten de matrix
+            const todo = risks.map((r, i) => ({ ...r, originalIndex: i })).filter(r => r.nieuw);
+            const itemHTML = r => {
+                const level = r.nieuw ? { class: 'none' } : getRiskLevel(r.probability, r.impact);
                 const score = r.probability * r.impact;
                 const i = r.originalIndex, open = openIdx === i;
-                const extra = riskExtra(r) || (open ? '' : '<span class="risk-extra hint">+ maatregel en eigenaar</span>');
+                const g = (r.nieuw && gekozen.get(risks[i])) || {};
+                const opt = (f, L) => (r.nieuw && !g[f] ? '<option value="" selected>Kies…</option>' : '') + [1,2,3,4,5].map(v => `<option value="${v}"${(!r.nieuw || g[f]) && r[f] === v ? ' selected' : ''}>${v} · ${L[v].t}</option>`).join('');
+                const extra = riskExtra(r) || (open || r.nieuw ? '' : '<span class="risk-extra hint">+ maatregel en eigenaar</span>');
                 return `
                     <div class="risk-item q-${level.class}">
-                        <span class="risk-num q-${level.class}" aria-hidden="true">${r.num}</span>
+                        <span class="risk-num q-${level.class}" aria-hidden="true">${r.nieuw ? '?' : r.num}</span>
                         <button type="button" class="risk-open" data-open="${i}" aria-expanded="${open}" aria-controls="re-${i}">
                             <span class="risk-name">${ocEsc(r.name)}</span>
-                            <span class="risk-meta">Kans ${r.probability}/5 · Impact ${r.impact}/5 · <span class="risk-score q-${level.class}">${score} ${level.name}</span></span>
+                            <span class="risk-meta">${r.nieuw ? 'Kans en impact nog in te schatten' : `Kans ${r.probability}/5 · Impact ${r.impact}/5 · <span class="risk-score q-${level.class}">${score} ${level.name}</span>`}</span>
                             ${extra}
                         </button>
                         <button class="risk-delete" type="button" data-del="${i}" title="Verwijderen" aria-label="Verwijder ${ocEsc(r.name)}">
@@ -2066,8 +2122,8 @@ const ocExport = (() => {
                         <div class="risk-edit" id="re-${i}"${open ? '' : ' hidden'}>
                             <div><label for="rn-${i}">Wat kan er misgaan?</label><input id="rn-${i}" type="text" data-f="name" data-i="${i}" value="${ocEsc(r.name)}" maxlength="300" autocomplete="off"></div>
                             <div class="risk-edit-row two">
-                                <div><label for="rp-${i}">Kans</label><select id="rp-${i}" data-f="probability" data-i="${i}">${[1,2,3,4,5].map(v => `<option value="${v}"${r.probability === v ? ' selected' : ''}>${v} · ${KANS[v].t}</option>`).join('')}</select></div>
-                                <div><label for="ri-${i}">Impact</label><select id="ri-${i}" data-f="impact" data-i="${i}">${[1,2,3,4,5].map(v => `<option value="${v}"${r.impact === v ? ' selected' : ''}>${v} · ${IMPACT[v].t}</option>`).join('')}</select></div>
+                                <div><label for="rp-${i}">Kans</label><select id="rp-${i}" data-f="probability" data-i="${i}">${opt('probability', KANS)}</select></div>
+                                <div><label for="ri-${i}">Impact</label><select id="ri-${i}" data-f="impact" data-i="${i}">${opt('impact', IMPACT)}</select></div>
                             </div>
                             <div><label for="rm-${i}">Maatregel</label><textarea id="rm-${i}" rows="2" data-f="measure" data-i="${i}" placeholder="Wat doe je om het te voorkomen of te beperken?">${ocEsc(r.measure || '')}</textarea></div>
                             <div class="risk-edit-row">
@@ -2081,7 +2137,9 @@ const ocExport = (() => {
                         </div>
                     </div>
                 `;
-            }).join('');
+            };
+            container.innerHTML = (todo.length ? `<p class="todo-head">Nog in te schatten <span>· ${todo.length} · tik erop en kies kans en impact</span></p>${todo.map(itemHTML).join('')}${sortedRisks.length ? '<div class="todo-sep" aria-hidden="true"></div>' : ''}` : '')
+                + sortedRisks.map(itemHTML).join('');
         }
 
         // Vooraf tonen in welke groep een nieuw risico komt, zodat niemand ongemerkt in het midden blijft staan.
@@ -2157,6 +2215,54 @@ const ocExport = (() => {
             });
         }
 
+        /* ---------- Overnemen uit andere tools (risico's) ----------
+           Een overgenomen risico komt erin met zijn tekst. Kans en impact kies je daarna zelf (bovenaan het overzicht).
+           Dezelfde tekst komt er geen tweede keer in. Een voorbeeld neemt nooit iets over. */
+        const normRisk = s => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+        function refreshImport() {
+            let n = 0; try { n = ocShare.count(['risico'], 'risico'); } catch (e) {}
+            document.getElementById('importRow').hidden = !n || isVoorbeeld;
+        }
+        async function importRisks() {
+            if (isVoorbeeld) { ocToast('Een voorbeeld neemt niets over. Kies of maak je eigen project.'); return; }
+            const picked = await ocShare.pick({ types: ['risico'], self: 'risico', title: "Risico's overnemen", intro: "Kies risico's uit andere tools. Daarna schat je kans en impact in." });
+            if (!picked.length) return;
+            const p = cur(), before = JSON.stringify(risks), al = new Set(risks.map(r => normRisk(r.name)));
+            let n = 0;
+            picked.forEach(it => {
+                const name = String(it.text || '').trim().slice(0, 300), k = normRisk(name);
+                if (!name || al.has(k)) return;
+                al.add(k); risks.push({ name, probability: 3, impact: 3, nieuw: true }); n++;
+            });
+            if (!n) { ocToast(picked.length === 1 ? 'Dat risico stond er al' : "Die risico's stonden er al"); return; }
+            openIdx = null;
+            renderMatrix(); renderRiskList();
+            const dub = picked.length - n;
+            ocToast(`${n === 1 ? 'Eén risico' : n + " risico's"} overgenomen${dub ? `, ${dub} stond${dub === 1 ? '' : 'en'} er al` : ''}. Kies bovenaan hun kans en impact.`, () => {
+                if (cur() !== p) { state.current = p.id; syncFromState(); }
+                p.items = risks = JSON.parse(before); openIdx = null;
+                saveState(); renderMatrix(); renderRiskList();
+            });
+            requestAnimationFrame(() => { const h = document.querySelector('#riskList .todo-head'); h && h.scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); });
+        }
+        /* Een andere tool (bv. de Projectopdracht) opende de matrix met ?van=<tool>: meteen kiezen wat je overneemt. */
+        function ocOpenOvernemen() {
+            let van = '';
+            try { const u = new URL(location.href); van = u.searchParams.get('van') || ''; if (van) { u.searchParams.delete('van'); history.replaceState(null, '', u.pathname + u.search + u.hash); } } catch (e) { return; }
+            if (!van) return;
+            let n = 0; try { n = ocShare.count(['risico'], 'risico'); } catch (e) {}
+            if (!n) return;
+            if (isVoorbeeld) {
+                // naar het eigen project met de naam uit de app, of het eerste eigen project
+                const eigen = state.projects.filter(x => !x.voorbeeld), m = eigen.find(x => x.name === ocProject('')) || eigen[0];
+                if (!m) { ocToast("Een voorbeeld neemt niets over. Maak je eigen project; daarna staat Overnemen uit… onder Toevoegen."); return; }
+                switchProject(m.id);
+            }
+            window.ocVan = van;
+            setTimeout(async () => { try { await importRisks(); } finally { window.ocVan = ''; } }, 300);   // de items van die tool staan al aangevinkt
+        }
+        ['focus', 'storage'].forEach(ev => window.addEventListener(ev, () => setTimeout(() => { if (state) refreshImport(); }, 50)));
+
         /* Alles wissen, met Ongedaan zolang er intussen niets veranderde */
         const stateSig = () => JSON.stringify([document.getElementById('projectName').value, risks]);
         async function wipeAll() {
@@ -2217,6 +2323,9 @@ const ocExport = (() => {
                 const score = r.probability * r.impact;
                 csv += [csvCell(r.name), r.probability, csvCell(KANS[r.probability].t), r.impact, csvCell(IMPACT[r.impact].t), score, `"${level.name}"`, `"${level.action}"`, csvCell(r.measure || ''), csvCell(r.owner || ''), csvCell(STATUS[r.status] || '')].join(';') + '\r\n';
             });
+            risks.filter(r => r.nieuw).forEach(r => {
+                csv += [csvCell(r.name), '', '', '', '', '', '"Nog in te schatten"', '', csvCell(r.measure || ''), csvCell(r.owner || ''), csvCell(STATUS[r.status] || '')].join(';') + '\r\n';
+            });
 
             const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
@@ -2233,6 +2342,7 @@ const ocExport = (() => {
             renderMatrix();
             renderRiskList();
             document.documentElement.classList.remove('oc-wacht');
+            ocOpenOvernemen();
             if (omgezet) { ocToast(`Kans en impact gaan nu van 1 tot 5. ${omgezet === 1 ? 'Je risico is' : `Je ${omgezet} risico's zijn`} omgezet: de oude waarde gedeeld door 2, naar boven afgerond.`); omgezet = 0; }
             document.getElementById('projectName').addEventListener('input', () => { saveState(); renderTabs(); });
             document.getElementById('projectName').addEventListener('blur', () => { const el = document.getElementById('projectName'); if (!el.value.trim()) { el.value = 'Naamloos'; saveState(); renderTabs(); } });
@@ -2250,7 +2360,12 @@ const ocExport = (() => {
                     if (v) { r.name = v.slice(0, 300); const n = e.target.closest('.risk-item').querySelector('.risk-name'); if (n) n.textContent = r.name; saveState(); }
                     return;
                 }
-                if (f === 'probability' || f === 'impact') { r[f] = clamp5(v); saveState(); return; }
+                if (f === 'probability' || f === 'impact') {
+                    if (!v) return;
+                    r[f] = clamp5(v);
+                    if (r.nieuw) { const g = gekozen.get(r) || {}; g[f] = true; gekozen.set(r, g); if (g.probability && g.impact) { delete r.nieuw; gekozen.delete(r); } }
+                    saveState(); return;
+                }
                 if (v) r[f] = f === 'status' ? v : v.slice(0, f === 'owner' ? 80 : 500); else delete r[f];
                 saveState();
             });
@@ -2276,6 +2391,7 @@ const ocExport = (() => {
             document.getElementById('impactSlider').addEventListener('input', updatePreview);
 
             document.getElementById('addRisk').addEventListener('click', addRisk);
+            document.getElementById('ocImp').addEventListener('click', importRisks);
             document.getElementById('riskList').addEventListener('click', e => { const b = e.target.closest('[data-del]'); if (b) deleteRisk(+b.dataset.del); });
 
             ['riskName', 'riskMeasure', 'riskOwner'].forEach(id => document.getElementById(id).addEventListener('keydown', e => {

@@ -1426,7 +1426,9 @@ function ocProject(fb) { try { const p = JSON.parse(localStorage.getItem('oc.pro
      ]);                                   // aanroepen na elke bewaring
      ocShare.clear('raci');                // bij "Alles wissen"
      const gekozen = await ocShare.pick({ types:['betrokkene'], self:'weerstand', title:'Doelgroepen overnemen' });
-     // geeft [] terug bij annuleren, anders de aangevinkte items (met .source en .list erbij)
+     // geeft [] terug bij annuleren, anders de aangevinkte items (met .source, .bronId en .list erbij)
+     // Afspraak: een tool geeft wat ze overnam (bronId) NIET opnieuw door, tenzij ze er een eigen oordeel aan toevoegde
+     // (een score, een eigenaar, een datum). Zo blijft de bron de baas en komt wat daar verwijderd is niet terug.
      ocShare.pick({ ..., have:['Budget goedkeuren'] })  // optioneel: wat de tool al heeft, staat uitgegrijsd ("staat er al")
      ocShare.pick({ ..., vink:false })    // niets vooraf aanvinken;  notes:false  toont geen notities (voor wie alleen namen neemt)
      window.ocHave = types => [...]       // optioneel per tool: dan telt de knop "Overnemen uit andere tools" alleen wat nieuw is
@@ -1582,7 +1584,7 @@ const ocShare = (() => {
       document.addEventListener('keydown', onKey, true);
       back.querySelector('.ocs-cancel').addEventListener('click', () => close([]));
       ok.addEventListener('click', () => close(boxes().filter(b => b.checked).map(b => {
-        const s = src[+b.dataset.s]; return { ...s.items[+b.dataset.i], source: s.tool, list: s.list };
+        const s = src[+b.dataset.s]; return { ...s.items[+b.dataset.i], source: s.tool, bronId: s.id, list: s.list };
       })));
       const first = back.querySelector('input:not(:disabled),.ocs-cancel'); first && first.focus();
     });
@@ -1863,6 +1865,7 @@ const ocExport = (() => {
             if (o) r.owner = o;
             if (STATUS[x.status]) r.status = x.status;
             if (x.nieuw === true) r.nieuw = true;
+            const van = str(x.van, 40); if (van) r.van = van;   // herkomst: overgenomen uit die tool
             return r;
         }
         function cleanItems(arr, oud) { return (Array.isArray(arr) ? arr : []).filter(x => x && typeof x.name === 'string' && x.name.trim()).map(x => cleanRisk(x, oud)); }
@@ -1911,7 +1914,9 @@ const ocExport = (() => {
             // Voorbeelden gaan nooit naar andere tools
             const lists = state.projects.filter(x => !x.voorbeeld && x.items.length).map(x => ({
                 name: x.name.trim() || "Risico's",
-                items: x.items.map(r => ({ type: 'risico', text: r.name, note: riskNote(r), who: r.owner || undefined }))
+                // Herkomst: een overgenomen risico geven we pas door als het ingeschat is (kans en impact zijn ons oordeel).
+                // Zolang het nog in te schatten is, blijft de bron de baas. Een maatregel is altijd eigen werk.
+                items: x.items.filter(r => !(r.van && r.nieuw)).map(r => ({ type: 'risico', text: r.name, note: riskNote(r), who: r.owner || undefined }))
                     // een maatregel is werk: die gaat ook als actie mee (behalve als het risico onder controle is)
                     .concat(x.items.filter(r => r.measure && r.status !== 'klaar').map(r => ({ type: 'actie', text: r.measure, who: r.owner || undefined, note: `maatregel voor: ${r.name}` })))
             }));
@@ -2286,7 +2291,7 @@ const ocExport = (() => {
                 const name = String(it.text || '').trim().slice(0, 300), k = normRisk(name);
                 if (!name) return;
                 if (al.has(k)) { dub++; return; }
-                al.add(k); risks.push({ name, probability: 3, impact: 3, nieuw: true }); n++;
+                al.add(k); risks.push({ name, probability: 3, impact: 3, nieuw: true, ...(typeof it.bronId === 'string' && it.bronId ? { van: it.bronId.slice(0, 40) } : {}) }); n++;
             });
             const alTekst = dub ? ` ${dub === 1 ? 'Eén risico stond' : dub + " risico's stonden"} er al.` : '';
             if (!n) { ocToast(`Geen nieuwe risico's.${alTekst}`); return; }
@@ -2438,7 +2443,8 @@ const ocExport = (() => {
                 const r = risks[+e.target.dataset.i]; if (!r) return;
                 const v = e.target.value.trim();
                 if (f === 'name') {   // een lege naam bewaren we niet: dan blijft de vorige staan
-                    if (v) { r.name = v.slice(0, 300); const n = e.target.closest('.risk-item').querySelector('.risk-name'); if (n) n.textContent = r.name; saveState(); }
+                    if (v) { if (r.van && normRisk(v) !== normRisk(r.name)) delete r.van;   // eigen tekst: nu je eigen risico
+                        r.name = v.slice(0, 300); const n = e.target.closest('.risk-item').querySelector('.risk-name'); if (n) n.textContent = r.name; saveState(); }
                     return;
                 }
                 if (f === 'probability' || f === 'impact') {

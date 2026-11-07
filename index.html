@@ -2494,6 +2494,15 @@ window.ocKoppel = (() => {
     <script>
 /* Het actieve project uit de app (oc.project): nieuwe projecten, analyses en lijsten krijgen die naam. */
 function ocProject(fb) { try { const p = JSON.parse(localStorage.getItem('oc.project')); return p && typeof p.name === 'string' && p.name.trim() ? p.name.trim().slice(0, 80) : fb; } catch { return fb; } }
+// Het project kreeg een nieuwe naam (in de app of in een tool): de vorige namen staan in oc.project.oud. Zo vindt elke tool het terug.
+function ocProjectOud() { try { const p = JSON.parse(localStorage.getItem('oc.project')); return p && Array.isArray(p.oud) ? p.oud.filter(x => typeof x === 'string') : []; } catch { return []; } }
+// Koos je in de app een ander project en heeft de tool er nog geen eigen lijst voor (een voorbeeld telt niet), dan geeft ocProjectNieuw die naam terug: begin dan een nieuwe, lege lijst op de manier van de tool.
+// Eén keer per projectkeuze: st.ocSince onthoudt welke keuze (oc.project.since) al verwerkt is. Is de open lijst nog leeg (o.leeg) en heeft ze een standaardnaam, dan krijgt ze de naam (o.noem) en komt er niets bij.
+// o.cur: eigenschap met de open lijst; o.van(u): het project van een lijst (standaard de naam). Leeg project of een standaardnaam in de app: niets.
+function ocProjectNieuw(st, arr, o = {}) { const n = ocProject(''), cur = o.cur || 'current', van = o.van || (x => x.name); if (!n || !st || !Array.isArray(st[arr])) return ''; let s = n; try { const p = JSON.parse(localStorage.getItem('oc.project')); if (p && p.since) s = String(p.since); } catch {} if (st.ocSince === s) return ''; st.ocSince = s; const std = v => window.ocStandaardNaam ? ocStandaardNaam(v) : !String(v || '').trim() || /^((mijn|nieuwe?) )?(project|analyse|lijst|keuze|kaart|ideeënkaart|doelgroep|matrix|plan|groep|team|tabel|informatietabel|log|retro|sprint|scan|proces)( \d+)?$|^naamloos$|^hele organisatie$/i.test(String(v).trim()); if (std(n)) return ''; const oud = ocProjectOud(); if (st[arr].some(x => x && !x.voorbeeld && (van(x) === n || oud.includes(van(x))))) return ''; const c = st[arr].find(x => x && x.id === st[cur]); if (c && !c.voorbeeld && o.leeg && o.leeg(c) && std(van(c))) { if (o.noem) o.noem(c, n); else c.name = n; return ''; } return n; }
+// De app houdt tools open: kies je daar een ander project, dan voert de tool fn() opnieuw uit (openen of nieuw beginnen). Typ je net in deze tool, dan pas bij de volgende focus of als ze weer zichtbaar wordt.
+function ocProjectVolg(fn) { let wacht = false; const typt = () => { const a = document.activeElement; return document.hasFocus() && !!a && (a.isContentEditable || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT' || (a.tagName === 'INPUT' && !/^(checkbox|radio|button|submit|reset|range|color|file)$/i.test(a.type))); }; const doe = () => { if (!wacht) return; wacht = false; try { fn(); } catch (e) { console.error(e); } }; addEventListener('storage', e => { if (e.key === 'oc.project' && e.newValue !== e.oldValue) { wacht = true; if (!typt()) doe(); } }); addEventListener('focus', doe); document.addEventListener('visibilitychange', doe); }
+function ocPickProject(st, arr, cur = 'current') { const p = ocProject(''); if (!p || !st || !Array.isArray(st[arr])) return; let u = st[arr].find(x => x && x.name === p); if (!u) { const o = ocProjectOud(); u = st[arr].find(x => x && o.includes(x.name)); if (u) u.name = p; } if (u) st[cur] = u.id; }   // open het actieve project uit de app
 /* ---------- Overnemen tussen tools (gedeeld door de Onder Constructie-tools, v2) ----------
    Alle tools draaien op hetzelfde domein en delen dus localStorage. Elke tool legt wat hij te bieden
    heeft klaar onder 'oc.share.<tool-id>', in een vaste vorm, zodat andere tools het kunnen overnemen
@@ -2992,7 +3001,7 @@ const ocExport = (() => {
                     if (p.weg && typeof p.weg === 'object' && window.ocKoppel) { const w = ocKoppel.wegMap(p.weg); if (Object.keys(w).length) o.weg = Object.assign({}, w); }
                     return tel(o);
                 });
-                if (projects.length) return Object.assign({ schaal: SCHAAL, projects, current: projects.some(p => p.id === d.current) ? d.current : projects[0].id },
+                if (projects.length) return Object.assign({ schaal: SCHAAL, projects, current: projects.some(p => p.id === d.current) ? d.current : projects[0].id }, typeof d.ocSince === 'string' ? { ocSince: d.ocSince } : {},
                     d.weg && typeof d.weg === 'object' && window.ocKoppel ? { weg: Object.assign({}, ocKoppel.wegMap(d.weg)) } : {});
             }
             if (d && Array.isArray(d.items)) {   // oud formaat: één lijst
@@ -3047,16 +3056,29 @@ const ocExport = (() => {
             let d = null;
             try { d = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) {}
             state = validState(d) || (() => { const p = blankProject(); return { schaal: SCHAAL, projects: [p], current: p.id }; })();
+            ocPickProject(state, 'projects');   // ook onder een vorige naam
             // open het actieve project uit de app, als het hier al bestaat
             const ap = ocProject('');
             if (ap) { const m = state.projects.find(x => !x.voorbeeld && ocZacht(x.name) === ocZacht(ap)); if (m) state.current = m.id;
                 // nog leeg project met een standaardnaam: dat krijgt de projectnaam uit de app
                 else { const c = state.projects.find(x => x.id === state.current); if (c && !c.voorbeeld && !c.items.length && ['Mijn project', 'Nieuw project', 'Naamloos', ''].includes(c.name.trim())) c.name = ap; } }
+            const nieuw = ocNieuwProject();
             syncFromState();
             loaded = true;
             // de omgezette waarden meteen bewaren (met schaal:5), zodat dit maar één keer gebeurt; ook wat andere tools ophalen
-            if (d && typeof d === 'object' && d.schaal !== SCHAAL) saveState();
+            if (nieuw || (d && typeof d === 'object' && d.schaal !== SCHAAL)) saveState();
         }
+        // Een ander project gekozen in de app en nog geen project ervoor: begin er een, zoals met "+ Project". Het vorige blijft in zijn tabblad.
+        function ocNieuwProject() { const ap = ocProject(''), n = ocProjectNieuw(state, 'projects', { leeg: p => !p.items.length, van: x => ocZacht(x.name) === ocZacht(ap) ? ap : x.name }); if (n) { const p = blankProject(n); state.projects.push(p); state.current = p.id; } return !!n; }
+        // Open in de app en daar een ander project gekozen: dat project openen of beginnen.
+        ocProjectVolg(() => {
+            if (!loaded) return;
+            const voor = JSON.stringify(state), ap = ocProject('');
+            ocPickProject(state, 'projects');
+            if (ap) { const m = state.projects.find(x => !x.voorbeeld && ocZacht(x.name) === ocZacht(ap)); if (m) state.current = m.id; }
+            ocNieuwProject();
+            if (JSON.stringify(state) !== voor) { syncFromState(); clearErr(); renderAll(); saveState(); }
+        });
         function renderTabs() {
             const el = document.getElementById('projTabs');
             el.innerHTML = state.projects.map(p => `<button type="button" class="ptab${p.id === state.current ? ' active' : ''}" data-proj="${ocEsc(p.id)}"${p.id === state.current ? ' aria-current="true"' : ''}>${window.ocKoppel ? ocKoppel.icoon(p) : ''}${ocEsc(p.name.trim() || 'Naamloos')}${p.voorbeeld ? '<span class="vb-tag">voorbeeld</span>' : ''}<span class="n">${p.items.length || ''}</span></button>`).join('')

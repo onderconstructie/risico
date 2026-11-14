@@ -2266,7 +2266,7 @@ window.ocProjectkiezer = function (plek, o) {
                         <summary>Maatregel en eigenaar (optioneel)</summary>
                         <div class="form-group">
                             <label for="riskMeasure">Maatregel</label>
-                            <input type="text" id="riskMeasure" enterkeyhint="done" placeholder="Wat doe je om het te voorkomen of te beperken?" autocomplete="off">
+                            <input type="text" id="riskMeasure" enterkeyhint="done" placeholder="Wat doe je eraan?" autocomplete="off">
                         </div>
                         <div class="form-group">
                             <label for="riskOwner">Eigenaar</label>
@@ -3991,9 +3991,9 @@ ${delen.map(p).join('\n')}
         b.after(k);
       }
       // Staat de knop alleen op een rij (naast Afbeelding en PDF is geen plaats), dan neemt ze de hele breedte: geen los blokje.
+      // Past ze niet meer naast de andere, dan mag de rij breken (ook als de rij nu nog verborgen is).
+      if (!inMenu(k) && /flex/.test(getComputedStyle(k.parentNode).display) && getComputedStyle(k.parentNode).flexWrap === 'nowrap') k.parentNode.style.flexWrap = 'wrap';
       if (!inMenu(k) && k.offsetWidth && !k.dataset.ocBreed) {
-        // Past ze niet meer naast de andere, dan mag de rij breken.
-        if (/flex/.test(getComputedStyle(k.parentNode).display) && k.getBoundingClientRect().right > Math.min(k.parentNode.getBoundingClientRect().right, innerWidth) + 1) k.parentNode.style.flexWrap = 'wrap';
         const pd = getComputedStyle(k.parentNode).display, alleen = Math.abs(k.getBoundingClientRect().top - b.getBoundingClientRect().top) > 4 && !(k.nextElementSibling && k.nextElementSibling.offsetWidth && Math.abs(k.nextElementSibling.getBoundingClientRect().top - k.getBoundingClientRect().top) < 4);
         if (alleen && /grid/.test(pd)) { k.style.gridColumn = '1 / -1'; k.dataset.ocBreed = '1'; }
         else if (alleen && /flex/.test(pd)) { k.style.flex = '1 1 100%'; k.dataset.ocBreed = '1'; }
@@ -4486,7 +4486,7 @@ ${delen.map(p).join('\n')}
                                 <div><label for="rp-${i}">Kans</label><select id="rp-${i}" data-f="probability" data-i="${i}">${opt('probability', KANS)}</select></div>
                                 <div><label for="ri-${i}">Impact</label><select id="ri-${i}" data-f="impact" data-i="${i}">${opt('impact', IMPACT)}</select></div>
                             </div>
-                            <div><label for="rm-${i}">Maatregel</label><textarea id="rm-${i}" rows="2" data-f="measure" data-i="${i}" placeholder="Wat doe je om het te voorkomen of te beperken?">${ocEsc(r.measure || '')}</textarea></div>
+                            <div><label for="rm-${i}">Maatregel</label><textarea id="rm-${i}" rows="2" data-f="measure" data-i="${i}" placeholder="Wat doe je eraan?">${ocEsc(r.measure || '')}</textarea></div>
                             <div class="risk-edit-row">
                                 <div><label for="ro-${i}">Eigenaar</label><input id="ro-${i}" type="text" list="ownerList" data-f="owner" data-i="${i}" value="${ocEsc(r.owner || '')}" placeholder="Wie volgt dit op?" autocomplete="off"></div>
                                 <div><label for="rs-${i}">Status</label><select id="rs-${i}" data-f="status" data-i="${i}">

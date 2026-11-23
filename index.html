@@ -2310,6 +2310,7 @@ window.ocProjectkiezer = function (plek, o) {
 };
 /* oc-projectkiezer v1 einde */
 </script>
+<style id="oc-ctrlz">@media (hover:hover) and (pointer:fine){.oc-toast button::after{content:" (Ctrl+Z)";font-weight:400;opacity:.8}}</style>
 </head>
 <body>
     <header class="header oc-head" data-oc-kop data-stand="compact"><script>ocKop.vooraf({ sleutel: 'risico.v1', lijst: 'projects', leeg: u => !u.voorbeeld && !(u.items || []).length });</script>
@@ -4536,7 +4537,7 @@ ${delen.map(p).join('\n')}
                 t.classList.toggle('has-undo', !!undoFn);
                 t.classList.add('show');
                 clearTimeout(timer);
-                timer = setTimeout(function ocT() { const w = window.ocWacht ? ocWacht(t) : 0; if (w) { timer = setTimeout(ocT, w); return; } t.classList.remove('show'); undoFn = null; }, ms || (undoFn || msg.length > 70 ? 6000 : 2600));
+                timer = setTimeout(function ocT() { const w = window.ocWacht ? ocWacht(t) : 0; if (w) { timer = setTimeout(ocT, w); return; } t.classList.remove('show'); undoFn = null; }, ms || (undoFn ? 10000 : msg.length > 70 ? 6000 : 4000));
             };
             f.huidig = () => undoFn;   // wat Ongedaan nu terugzet (het gedeelde bestand wacht daarop)
             return f;
